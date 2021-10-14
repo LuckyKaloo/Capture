@@ -13,7 +13,7 @@ public class Player {
         this.bots = new ArrayList<>();
         this.bots.add(new Bot(startVertex));
         this.bots.add(new Bot(startVertex));
-        this.source = startVertex.copy();
+        this.source = startVertex;
         this.area = 0;
     }
 
@@ -31,6 +31,11 @@ public class Player {
 
     public void setArea(double area) {
         this.area = area;
+    }
+
+    public void captureTile(Tile tile) {
+        tile.setControllingPlayer(this);
+        area++;
     }
 
     public void setSource(Vertex source) {

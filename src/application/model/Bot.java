@@ -1,8 +1,9 @@
 package application.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Bot {
+public class Bot implements Serializable {
     private int x;
     private int y;
     private Vertex source;
@@ -19,7 +20,7 @@ public class Bot {
     }
 
     public Bot(Vertex vertex) {
-        this(vertex.getX(), vertex.getY());
+        this(vertex.X(), vertex.Y());
     }
 
     public int getX() {
@@ -35,8 +36,8 @@ public class Bot {
     }
 
     public boolean move(int x, int y) {
-        int dx = this.x + x - source.getX();
-        int dy = this.y + y - source.getY();
+        int dx = this.x + x - source.X();
+        int dy = this.y + y - source.Y();
         if (dx * dx + dy * dy <= MAX_DISTANCE * MAX_DISTANCE) {
             this.x += x;
             this.y += y;

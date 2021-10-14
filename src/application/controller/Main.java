@@ -1,100 +1,17 @@
 package application.controller;
 
-import application.model.Board;
-import application.model.Bot;
-import application.model.Player;
-import application.model.Vertex;
 import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 public class Main extends Application {
-    Board board = new Board();
-    private Canvas canvas;
-    private GraphicsContext gc;
-
-    private Player currentPlayer = board.getPlayer1();
-    private Bot selectedBot = currentPlayer.getBots().get(0);
-
-    private boolean moveMade = false;
+    private static Game game;
 
     @Override
     public void start(Stage stage) throws Exception {
-        canvas = new Canvas();
-        canvas.setWidth(1000);
-        canvas.setHeight(600);
-        gc = canvas.getGraphicsContext2D();
+        game = new Game();
+        game.start();
 
-        Pane pane = new Pane(canvas);
-        Scene scene = new Scene(pane);
-
-        scene.setOnKeyPressed(e -> {
-            switch (e.getCode()) {
-                case T -> {
-                    selectedBot = currentPlayer.getBots().get(0);
-                }
-                case Y -> {
-                    selectedBot = currentPlayer.getBots().get(1);
-                }
-                case DOWN -> {
-                    if (selectedBot.getY() < Board.BOARD_HEIGHT) {
-                        moveMade = selectedBot.move(0, 1);
-                    }
-                }
-                case LEFT -> {
-                    if (selectedBot.getX() > 0) {
-                        moveMade = selectedBot.move(-1, 0);
-                    }
-                }
-                case UP -> {
-                    if (selectedBot.getY() > 0) {
-                        moveMade = selectedBot.move(0, -1);
-                    }
-                }
-                case RIGHT -> {
-                    if (selectedBot.getX() < Board.BOARD_WIDTH) {
-                        moveMade = selectedBot.move(1, 0);
-                    }
-                }
-                case Q -> {
-                    if (selectedBot.getX() > 0  &&  selectedBot.getY() > 0) {
-                        moveMade = selectedBot.move(-1, -1);
-                    }
-                }
-                case E -> {
-                    if (selectedBot.getX() < Board.BOARD_WIDTH  &&  selectedBot.getY() > 0) {
-                        moveMade = selectedBot.move(1, -1);
-                    }
-                }
-                case A -> {
-                    if (selectedBot.getX() > 0  &&  selectedBot.getY() < Board.BOARD_HEIGHT) {
-                        moveMade = selectedBot.move(-1, 1);
-                    }
-                }
-                case D -> {
-                    if (selectedBot.getX() < Board.BOARD_WIDTH  &&  selectedBot.getY() < Board.BOARD_HEIGHT) {
-                        moveMade = selectedBot.move(1, 1);
-                    }
-                }
-            }
-
-            if (moveMade) {
-                board.update();
-                moveMade = false;
-            }
-
-//            currentPlayer = board.changePlayer(currentPlayer);
-//            selectedBot = currentPlayer.getBots().get(0);
-
-            drawCanvas();
-        });
-
-        drawCanvas();
-        stage.setScene(scene);
+        stage.setScene(game.getScene());
         stage.show();
     }
 

@@ -6,7 +6,6 @@ import java.util.ArrayList;
 public class Board {
     private final Player player1;
     private final Player player2;
-    private final ArrayList<ArrayList<Vertex>> vertices = new ArrayList<>();
     private final ArrayList<ArrayList<Tile[]>> tiles = new ArrayList<>();
 
     public final static int BOARD_WIDTH = 15;
@@ -35,7 +34,6 @@ public class Board {
                 }
             }
 
-            vertices.add(rowVertices);
             tiles.add(rowTiles);
         }
     }
@@ -58,10 +56,6 @@ public class Board {
         return null;
     }
 
-    public ArrayList<ArrayList<Vertex>> getVertices() {
-        return vertices;
-    }
-
     public ArrayList<ArrayList<Tile[]>> getTiles() {
         return tiles;
     }
@@ -77,9 +71,15 @@ public class Board {
     }
 
     private void capture(Player player) {
+        player.setArea(0);
         captureAxis(true, player);
         captureAxis(false, player);
         player.closeLoop();
+
+        // checking if game is over
+        if (player1.getArea() + player2.getArea() == BOARD_HEIGHT * BOARD_WIDTH * 4) {
+            endGame();
+        }
     }
 
     private void captureAxis(boolean horizontal, Player player) {
@@ -115,11 +115,11 @@ public class Board {
                 Vertex end = bot.getVisitedVertices().get(i + 1);
 
                 if (horizontal) {
-                    if (start.getY() == end.getY()) {
+                    if (start.Y() == end.Y()) {
                         continue;
                     }
                 } else {
-                    if (start.getX() == end.getX()) {
+                    if (start.X() == end.X()) {
                         continue;
                     }
                 }
@@ -128,13 +128,13 @@ public class Board {
                 int perp;
                 int edgeType;
                 if (horizontal) {
-                    para = Math.min(start.getX(), end.getX());
-                    perp = Math.min(start.getY(), end.getY());
-                    edgeType = (start.getX() - end.getX()) / (start.getY() - end.getY()) + 1;
+                    para = Math.min(start.X(), end.X());
+                    perp = Math.min(start.Y(), end.Y());
+                    edgeType = (start.X() - end.X()) / (start.Y() - end.Y()) + 1;
                 } else {
-                    para = Math.min(start.getY(), end.getY());
-                    perp = Math.min(start.getX(), end.getX());
-                    edgeType = (start.getY() - end.getY()) / (start.getX() - end.getX()) + 1;
+                    para = Math.min(start.Y(), end.Y());
+                    perp = Math.min(start.X(), end.X());
+                    edgeType = (start.Y() - end.Y()) / (start.X() - end.X()) + 1;
                 }
 
                 if (para < paraLength && perp < perpLength) {
@@ -159,19 +159,19 @@ public class Board {
                 boolean closeInLoop = edgeTypes[1] != inLoop;
 
 //                if (!horizontal && player == player2) {
-//                    System.out.println(closeInLoop + " " + Arrays.toString(edgeTypes) + "  x: " + y + " y: " + x);
+//                    System.out.println(closeInLoop + " " + Arrays.toString(edgeTypes) + "  X: " + Y + " Y: " + X);
 //                }
 
                 if (edgeTypes[0] == edgeTypes[2]) {
                     if (closeInLoop) {
-                        square[closeSide].setControllingPlayer(player);
-                        square[farSide].setControllingPlayer(player);
+                        player.captureTile(square[closeSide]);
+                        player.captureTile(square[farSide]);
                     }
                 } else {
                     if (closeInLoop) {
-                        square[closeSide].setControllingPlayer(player);
+                        player.captureTile(square[closeSide]);
                     } else {
-                        square[farSide].setControllingPlayer(player);
+                        player.captureTile(square[farSide]);
                     }
                 }
 
