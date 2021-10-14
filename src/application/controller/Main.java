@@ -1,6 +1,8 @@
 package application.controller;
 
 import application.model.Board;
+import application.model.Bot;
+import application.model.Player;
 import application.model.Vertex;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -15,8 +17,10 @@ public class Main extends Application {
     private Canvas canvas;
     private GraphicsContext gc;
 
-    int playerX = 1;
-    int playerY = 1;
+    private Player currentPlayer = board.getPlayer1();
+    private Bot selectedBot = currentPlayer.getBots().get(0);
+
+    private boolean moveMade = false;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -24,59 +28,72 @@ public class Main extends Application {
         canvas.setWidth(1000);
         canvas.setHeight(600);
         gc = canvas.getGraphicsContext2D();
-        canvas.setOnMouseMoved(e -> {
-            board.update();
-            drawCanvas();
-        });
 
         Pane pane = new Pane(canvas);
         Scene scene = new Scene(pane);
 
         scene.setOnKeyPressed(e -> {
             switch (e.getCode()) {
+                case T -> {
+                    selectedBot = currentPlayer.getBots().get(0);
+                }
+                case Y -> {
+                    selectedBot = currentPlayer.getBots().get(1);
+                }
                 case DOWN -> {
-                    if (playerY < Board.BOARD_HEIGHT) {
-                        playerY += 1;
+                    if (selectedBot.getY() < Board.BOARD_HEIGHT) {
+                        moveMade = selectedBot.move(0, 1);
                     }
                 }
                 case LEFT -> {
-                    if (playerX > 0) {
-                        playerX -= 1;
+                    if (selectedBot.getX() > 0) {
+                        moveMade = selectedBot.move(-1, 0);
                     }
                 }
                 case UP -> {
-                    if (playerY > 0) {
-                        playerY -= 1;
+                    if (selectedBot.getY() > 0) {
+                        moveMade = selectedBot.move(0, -1);
                     }
                 }
                 case RIGHT -> {
-                    if (playerX < Board.BOARD_WIDTH) {
-                        playerX += 1;
+                    if (selectedBot.getX() < Board.BOARD_WIDTH) {
+                        moveMade = selectedBot.move(1, 0);
                     }
                 }
                 case Q -> {
-                    playerX -= 1;
-                    playerY -= 1;
+                    if (selectedBot.getX() > 0  &&  selectedBot.getY() > 0) {
+                        moveMade = selectedBot.move(-1, -1);
+                    }
                 }
                 case E -> {
-                    playerX += 1;
-                    playerY -= 1;
+                    if (selectedBot.getX() < Board.BOARD_WIDTH  &&  selectedBot.getY() > 0) {
+                        moveMade = selectedBot.move(1, -1);
+                    }
                 }
                 case A -> {
-                    playerX -= 1;
-                    playerY += 1;
+                    if (selectedBot.getX() > 0  &&  selectedBot.getY() < Board.BOARD_HEIGHT) {
+                        moveMade = selectedBot.move(-1, 1);
+                    }
                 }
                 case D -> {
-                    playerX += 1;
-                    playerY += 1;
+                    if (selectedBot.getX() < Board.BOARD_WIDTH  &&  selectedBot.getY() < Board.BOARD_HEIGHT) {
+                        moveMade = selectedBot.move(1, 1);
+                    }
                 }
             }
-            board.getPlayer1().getVisitedVertices().add(board.getVertices().get(playerX).get(playerY));
 
-            board.update();
+            if (moveMade) {
+                board.update();
+                moveMade = false;
+            }
+
+//            currentPlayer = board.changePlayer(currentPlayer);
+//            selectedBot = currentPlayer.getBots().get(0);
+
             drawCanvas();
         });
 
+        drawCanvas();
         stage.setScene(scene);
         stage.show();
     }
@@ -90,19 +107,21 @@ public class Main extends Application {
         double rowSpacing = (canvas.getHeight() - padding * 2) / Board.BOARD_HEIGHT;
         double colSpacing = (canvas.getWidth() - padding * 2) / Board.BOARD_WIDTH;
 
-        gc.setStroke(Color.RED);
-        gc.beginPath();
-        for (Vertex vertex: board.getPlayer1().getVisitedVertices()) {
-            gc.lineTo(vertex.getX() * colSpacing - padding, vertex.getY() * rowSpacing - padding);
+        gc.setStroke(Color.YELLOW);
+        for (Bot bot: currentPlayer.getBots()) {
+            gc.beginPath();
+            for (Vertex vertex: bot.getVisitedVertices()) {
+                gc.lineTo(vertex.getX() * colSpacing + padding, vertex.getY() * rowSpacing + padding);
+            }
+            gc.stroke();
+            gc.closePath();
         }
-        gc.stroke();
-        gc.closePath();
 
         gc.setFill(Color.rgb(255, 100, 100));
         for (int col = 0; col < Board.BOARD_WIDTH; col++) {
             for (int row = 0; row < Board.BOARD_HEIGHT; row++) {
                 for (int i = 0; i < 4; i++) {
-                    if (board.getTiles().get(row).get(col).get(i).getControllingPlayer() == board.getPlayer1()) {
+                    if (board.getTiles().get(row).get(col)[i].getControllingPlayer() == currentPlayer) {
                         double[] xCoords;
                         double[] yCoords;
 
@@ -128,10 +147,17 @@ public class Main extends Application {
 
         gc.setFill(Color.WHITE);
         int circleRadius = 2;
-        for (int col = 0; col < Board.BOARD_WIDTH; col++) {
-            for (int row = 0; row < Board.BOARD_HEIGHT; row++) {
-                gc.fillOval(col * colSpacing - circleRadius - padding, row * rowSpacing - circleRadius - padding, circleRadius * 2, circleRadius * 2);
+        for (int col = 0; col <= Board.BOARD_WIDTH; col++) {
+            for (int row = 0; row <= Board.BOARD_HEIGHT; row++) {
+                gc.fillOval(col * colSpacing - circleRadius + padding, row * rowSpacing - circleRadius + padding, circleRadius * 2, circleRadius * 2);
             }
         }
+
+        gc.setFill(Color.GREEN);
+        gc.fillOval(selectedBot.getX() * colSpacing - circleRadius + padding, selectedBot.getY() * rowSpacing - circleRadius + padding, circleRadius * 2, circleRadius * 2);
+
+        gc.setStroke(Color.LIGHTGRAY);
+        gc.strokeOval((currentPlayer.getSource().getX() - Bot.MAX_DISTANCE) * colSpacing + padding, (currentPlayer.getSource().getY() - Bot.MAX_DISTANCE) * rowSpacing + padding,
+                Bot.MAX_DISTANCE * colSpacing * 2, Bot.MAX_DISTANCE * rowSpacing * 2);
     }
 }

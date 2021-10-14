@@ -1,14 +1,13 @@
 package application.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 
 public class Board {
     private final Player player1;
     private final Player player2;
     private final ArrayList<ArrayList<Vertex>> vertices = new ArrayList<>();
-    private final ArrayList<ArrayList<ArrayList<Tile>>> tiles = new ArrayList<>();
+    private final ArrayList<ArrayList<Tile[]>> tiles = new ArrayList<>();
 
     public final static int BOARD_WIDTH = 15;
     public final static int BOARD_HEIGHT = 10;
@@ -18,19 +17,19 @@ public class Board {
     }
 
     public Board(String name1, String name2) {
-        this.player1 = new Player(name1);
-        this.player2 = new Player(name2);
+        this.player1 = new Player(name1, new Vertex(0, 0));
+        this.player2 = new Player(name2, new Vertex(BOARD_WIDTH, BOARD_HEIGHT));
 
-        for (int row = 0; row <= BOARD_HEIGHT; row++) {
+        for (int y = 0; y <= BOARD_HEIGHT; y++) {
             ArrayList<Vertex> rowVertices = new ArrayList<>();
-            ArrayList<ArrayList<Tile>> rowTiles = new ArrayList<>();
+            ArrayList<Tile[]> rowTiles = new ArrayList<>();
 
-            for (int col = 0; col <= BOARD_WIDTH; col++) {
-                rowVertices.add(new Vertex(row, col));
-                if (row < BOARD_HEIGHT &&  col < BOARD_WIDTH) {
-                    ArrayList<Tile> square = new ArrayList<>();
+            for (int x = 0; x <= BOARD_WIDTH; x++) {
+                rowVertices.add(new Vertex(x, y));
+                if (y < BOARD_HEIGHT &&  x < BOARD_WIDTH) {
+                    Tile[] square = new Tile[4];
                     for (int side = 0; side < 4; side++) {
-                        square.add(new Tile(row, col, side));
+                        square[side] = new Tile(x, y, side);
                     }
                     rowTiles.add(square);
                 }
@@ -49,130 +48,132 @@ public class Board {
         return player2;
     }
 
+    public Player changePlayer(Player player) {
+        if (player == player1) {
+            return player2;
+        } else if (player == player2) {
+            return player1;
+        }
+
+        return null;
+    }
+
     public ArrayList<ArrayList<Vertex>> getVertices() {
         return vertices;
     }
 
-    public ArrayList<ArrayList<ArrayList<Tile>>> getTiles() {
+    public ArrayList<ArrayList<Tile[]>> getTiles() {
         return tiles;
     }
 
     public void update() {
         if (player1.formsClosedLoop()) {
             capture(player1);
-            Vertex vertex = player1.getVisitedVertices().get(player1.getVisitedVertices().size()-1);
-            player1.getVisitedVertices().clear();
-            player1.getVisitedVertices().add(vertex);
         }
 
         if (player2.formsClosedLoop()) {
             capture(player2);
-            player2.getVisitedVertices().clear();
         }
     }
 
     private void capture(Player player) {
         captureAxis(true, player);
         captureAxis(false, player);
+        player.closeLoop();
     }
 
     private void captureAxis(boolean horizontal, Player player) {
         int closeSide;
         int farSide;
-        int perp;
-        int para;
+        int perpLength;
+        int paraLength;
         if (horizontal) {
             closeSide = 2;
             farSide = 0;
-            perp = BOARD_HEIGHT;
-            para = BOARD_WIDTH;
+            perpLength = BOARD_HEIGHT;
+            paraLength = BOARD_WIDTH;
         } else {
-            closeSide = 1; // waitdiscord
-            farSide = 3;  // ill do it now
-            perp = BOARD_WIDTH;
-            para = BOARD_HEIGHT;
+            closeSide = 1;
+            farSide = 3;
+            perpLength = BOARD_WIDTH;
+            paraLength = BOARD_HEIGHT;
         }
 
         // boolean[] is stored as {negative, vertical, positive}
         ArrayList<ArrayList<boolean[]>> axisEdges = new ArrayList<>();
-        for (int y = 0; y < perp; y++) {
+        for (int perp = 0; perp < perpLength; perp++) {
             ArrayList<boolean[]> lineEdges = new ArrayList<>();
-            for (int x = 0; x < para; x++) {
+            for (int para = 0; para < paraLength; para++) {
                 lineEdges.add(new boolean[]{false, false, false});
             }
             axisEdges.add(lineEdges);
         }
 
-        for (int i = 0; i < player.getVisitedVertices().size(); i++) {
-            Vertex start = player.getVisitedVertices().get(i);
-            Vertex end;
-            if (i < player.getVisitedVertices().size() - 1) {
-                end = player.getVisitedVertices().get(i + 1);
-            } else {
-                end = player.getVisitedVertices().get(0);
-            }
+        for (Bot bot: player.getBots()) {
+            for (int i = 0; i < bot.getVisitedVertices().size() - 1; i++) {
+                Vertex start = bot.getVisitedVertices().get(i);
+                Vertex end = bot.getVisitedVertices().get(i + 1);
 
-            if (horizontal) {
-                if (start.getY() == end.getY()) {
-                    continue;
+                if (horizontal) {
+                    if (start.getY() == end.getY()) {
+                        continue;
+                    }
+                } else {
+                    if (start.getX() == end.getX()) {
+                        continue;
+                    }
                 }
-            } else {
-                if (start.getX() == end.getX()) {
-                    continue;
+
+                int para;
+                int perp;
+                int edgeType;
+                if (horizontal) {
+                    para = Math.min(start.getX(), end.getX());
+                    perp = Math.min(start.getY(), end.getY());
+                    edgeType = (start.getX() - end.getX()) / (start.getY() - end.getY()) + 1;
+                } else {
+                    para = Math.min(start.getY(), end.getY());
+                    perp = Math.min(start.getX(), end.getX());
+                    edgeType = (start.getY() - end.getY()) / (start.getX() - end.getX()) + 1;
+                }
+
+                if (para < paraLength && perp < perpLength) {
+                    axisEdges.get(perp).get(para)[edgeType] = !axisEdges.get(perp).get(para)[edgeType];
                 }
             }
-
-            int xCoord;
-            int yCoord;
-            int edgeType;
-            if (horizontal) {
-                xCoord = Math.min(start.getX(), end.getX());
-                yCoord = Math.min(start.getY(), end.getY());
-                edgeType = (start.getX() - end.getX()) / (start.getY() - end.getY()) + 1;
-            } else {
-                xCoord = Math.min(start.getY(), end.getY());
-                yCoord = Math.min(start.getX(), end.getX());
-                edgeType = (start.getY() - end.getY()) / (start.getX() - end.getX()) + 1;
-            }
-
-            axisEdges.get(yCoord).get(xCoord)[edgeType] = !axisEdges.get(yCoord).get(xCoord)[edgeType];
         }
 
-        for (int y = 0; y < perp; y++) {
-            ArrayList<boolean[]> lineEdges = axisEdges.get(y);
+        for (int perp = 0; perp < perpLength; perp++) {
+            ArrayList<boolean[]> lineEdges = axisEdges.get(perp);
             boolean inLoop = false;
 
-            for (int x = 0; x < para; x++) {
-                boolean[] edgeTypes = lineEdges.get(x);
-                ArrayList<Tile> square;
+            for (int para = 0; para < paraLength; para++) {
+                boolean[] edgeTypes = lineEdges.get(para);
+                Tile[] square;
                 if (horizontal) {
-                    square = tiles.get(y).get(x);
+                    square = tiles.get(perp).get(para);
                 } else {
-                    square = tiles.get(x).get(y);
+                    square = tiles.get(para).get(perp);
                 }
 
                 boolean closeInLoop = edgeTypes[1] != inLoop;
 
+//                if (!horizontal && player == player2) {
+//                    System.out.println(closeInLoop + " " + Arrays.toString(edgeTypes) + "  x: " + y + " y: " + x);
+//                }
+
                 if (edgeTypes[0] == edgeTypes[2]) {
                     if (closeInLoop) {
-                        square.get(closeSide).setControllingPlayer(player);
-                        square.get(farSide).setControllingPlayer(player);
+                        square[closeSide].setControllingPlayer(player);
+                        square[farSide].setControllingPlayer(player);
                     }
                 } else {
                     if (closeInLoop) {
-                        square.get(closeSide).setControllingPlayer(player);
+                        square[closeSide].setControllingPlayer(player);
                     } else {
-                        square.get(farSide).setControllingPlayer(player);
+                        square[farSide].setControllingPlayer(player);
                     }
                 }
-
-                if (horizontal) {
-                    System.out.println("horizontal  " + closeInLoop + "   " + Arrays.toString(edgeTypes) + "  x: " + x + " y: " + y);
-                } else {
-                    System.out.println("vertical  " + closeInLoop + "   " + Arrays.toString(edgeTypes) + "  x: " + y + " y: " + x);
-                }
-
-                // fixing the problem
 
                 int sides = 0;
                 for (boolean bool: edgeTypes) {

@@ -4,15 +4,16 @@ import java.util.ArrayList;
 
 public class Player {
     private final String name;
-    private final ArrayList<Vertex> bots;
-    private final ArrayList<Vertex> visitedVertices;
+    private Vertex source;
+    private final ArrayList<Bot> bots;
     private double area;
 
-    public Player(String name) {
+    public Player(String name, Vertex startVertex) {
         this.name = name;
         this.bots = new ArrayList<>();
-        this.visitedVertices = new ArrayList<>();
-        this.visitedVertices.add(new Vertex(1, 1));
+        this.bots.add(new Bot(startVertex));
+        this.bots.add(new Bot(startVertex));
+        this.source = startVertex.copy();
         this.area = 0;
     }
 
@@ -20,12 +21,8 @@ public class Player {
         return name;
     }
 
-    public ArrayList<Vertex> getBots() {
+    public ArrayList<Bot> getBots() {
         return bots;
-    }
-
-    public ArrayList<Vertex> getVisitedVertices() {
-        return visitedVertices;
     }
 
     public double getArea() {
@@ -36,11 +33,29 @@ public class Player {
         this.area = area;
     }
 
+    public void setSource(Vertex source) {
+        this.source = source;
+    }
+
+    public Vertex getSource() {
+        return this.source;
+    }
+
     public boolean formsClosedLoop() {
-        if (visitedVertices.size() >= 2) {
-            return visitedVertices.get(0).equals(visitedVertices.get(visitedVertices.size() - 1));
+        if (bots.get(0).getVisitedVertices().size() + bots.get(1).getVisitedVertices().size() >= 2) {
+            return bots.get(0).equals(bots.get(1));
         } else {
             return false;
+        }
+    }
+
+    public void closeLoop() {
+        if (formsClosedLoop()) {
+            this.source = bots.get(0).toVertex();
+            for (Bot bot : bots) {
+                bot.reset();
+                bot.setSource(this.source);
+            }
         }
     }
 }
