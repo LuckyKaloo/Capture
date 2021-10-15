@@ -7,6 +7,10 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+
 public class Game {
     private final Board board = new Board();
     private Scene scene;
@@ -15,6 +19,14 @@ public class Game {
 
     private Player currentPlayer = board.getPlayer1();
     private Bot selectedBot = currentPlayer.getBots().get(0);
+
+    private final static Color BACKGROUND = Color.rgb(2, 8, 16);
+    private final static Color LINE = Color.rgb(170, 170, 170);
+    private final static Color RED_LINE = Color.rgb(255, 40, 40);
+    private final static Color RED_AREA = Color.rgb(255, 90, 90);
+    private final static Color BLUE_LINE = Color.rgb(40, 40, 255);
+    private final static Color BLUE_AREA = Color.rgb(120, 120, 255);
+    private final static Color MIXED_LINE = Color.rgb(255, 40, 255);
 
     private boolean moveMade = false;
 
@@ -160,5 +172,27 @@ public class Game {
         gc.setStroke(Color.LIGHTGRAY);
         gc.strokeOval((currentPlayer.getSource().X() - Bot.MAX_DISTANCE) * colSpacing + padding, (currentPlayer.getSource().Y() - Bot.MAX_DISTANCE) * rowSpacing + padding,
                 Bot.MAX_DISTANCE * colSpacing * 2, Bot.MAX_DISTANCE * rowSpacing * 2);
+    }
+
+    private void newDrawCanvas() {
+        gc.setFill(BACKGROUND);
+        gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+
+        ArrayList<Vertex[]> player1Edges = new ArrayList<>();
+        ArrayList<Vertex[]> player2Edges = new ArrayList<>();
+        ArrayList<Vertex[]> commonEdges = new ArrayList<>();
+
+        for (Bot bot: board.getPlayer1().getBots()) {
+            for (int i = 0; i < bot.getVisitedVertices().size()-1; i++) {
+                player1Edges.add(new Vertex[]{bot.getVisitedVertices().get(i), bot.getVisitedVertices().get(i+1)});
+            }
+        }
+        for (Bot bot: board.getPlayer2().getBots()) {
+            for (int i = 0; i < bot.getVisitedVertices().size()-1; i++) {
+                player2Edges.add(new Vertex[]{bot.getVisitedVertices().get(i), bot.getVisitedVertices().get(i+1)});
+            }
+        }
+
+        player1Edges.retainAll()
     }
 }

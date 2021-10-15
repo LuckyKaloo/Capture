@@ -20,11 +20,9 @@ public class Board {
         this.player2 = new Player(name2, new Vertex(BOARD_WIDTH, BOARD_HEIGHT));
 
         for (int y = 0; y <= BOARD_HEIGHT; y++) {
-            ArrayList<Vertex> rowVertices = new ArrayList<>();
             ArrayList<Tile[]> rowTiles = new ArrayList<>();
 
             for (int x = 0; x <= BOARD_WIDTH; x++) {
-                rowVertices.add(new Vertex(x, y));
                 if (y < BOARD_HEIGHT &&  x < BOARD_WIDTH) {
                     Tile[] square = new Tile[4];
                     for (int side = 0; side < 4; side++) {
