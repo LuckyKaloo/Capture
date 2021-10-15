@@ -3,7 +3,7 @@ package application.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Board {
+public class Board implements Serializable {
     private final Player player1;
     private final Player player2;
     private final ArrayList<ArrayList<Tile[]>> tiles = new ArrayList<>();
@@ -186,4 +186,12 @@ public class Board {
             }
         }
     }
+
+    private void endGame() {
+
+    }
+
+//    public String getBoard() {
+//
+//    }
 }

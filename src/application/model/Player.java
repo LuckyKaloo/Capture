@@ -2,7 +2,7 @@ package application.model;
 
 import java.util.ArrayList;
 
-public class Player {
+public class Player  {
     private final String name;
     private Vertex source;
     private final ArrayList<Bot> bots;
