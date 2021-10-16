@@ -5,24 +5,25 @@ import java.util.ArrayList;
 public class Player  {
     private final String name;
     private Vertex source;
-    private final ArrayList<Bot> bots;
+    private final Bot bot1;
+    private final Bot bot2;
+    private final Bot[] bots;
+    private Bot selectedBot;
     private double area;
 
     public Player(String name, Vertex startVertex) {
         this.name = name;
-        this.bots = new ArrayList<>();
-        this.bots.add(new Bot(startVertex));
-        this.bots.add(new Bot(startVertex));
+        this.bot1 = new Bot(startVertex);
+        this.bot2 = new Bot(startVertex);
+        this.selectedBot = bot1;
+        this.bots = new Bot[]{bot1, bot2};
+
         this.source = startVertex;
         this.area = 0;
     }
 
     public String getName() {
         return name;
-    }
-
-    public ArrayList<Bot> getBots() {
-        return bots;
     }
 
     public double getArea() {
@@ -46,9 +47,25 @@ public class Player  {
         return this.source;
     }
 
+    public Bot[] getBots() {
+        return this.bots;
+    }
+
+    public void changeBot() {
+        if (this.selectedBot == this.bot1) {
+            this.selectedBot = this.bot2;
+        } else if (this.selectedBot == this.bot2) {
+            this.selectedBot = this.bot1;
+        }
+    }
+
+    public Bot getSelectedBot() {
+        return this.selectedBot;
+    }
+
     public boolean formsClosedLoop() {
-        if (bots.get(0).getVisitedVertices().size() + bots.get(1).getVisitedVertices().size() >= 2) {
-            return bots.get(0).equals(bots.get(1));
+        if (bot1.getVisitedVertices().size() + bot2.getVisitedVertices().size() >= 2) {
+            return bot1.equals(bot2);
         } else {
             return false;
         }
@@ -56,11 +73,11 @@ public class Player  {
 
     public void closeLoop() {
         if (formsClosedLoop()) {
-            this.source = bots.get(0).toVertex();
-            for (Bot bot : bots) {
-                bot.reset();
-                bot.setSource(this.source);
-            }
+            this.source = bot1.toVertex();
+            bot1.reset();
+            bot1.setSource(this.source);
+            bot2.reset();
+            bot2.setSource(this.source);
         }
     }
 }

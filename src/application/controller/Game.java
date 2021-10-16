@@ -16,7 +16,7 @@ public class Game {
     private Canvas canvas;
     private GraphicsContext gc;
 
-    private final static int SPACING = 50;
+    private final static int SPACING = 60;
     private final static int PADDING = 20;
     private final static int CIRCLE_RADIUS = 3;
 
@@ -34,7 +34,7 @@ public class Game {
     void start() {
         canvas = new Canvas();
         canvas.setWidth(1000);
-        canvas.setHeight(600);
+        canvas.setHeight(700);
         gc = canvas.getGraphicsContext2D();
         gc.setLineWidth(2);
 
@@ -42,8 +42,7 @@ public class Game {
 
         scene.setOnKeyPressed(e -> {
             switch (e.getCode()) {
-                case T -> board.selectBot1();
-                case Y -> board.selectBot2();
+                case T -> board.changeBot();
                 case DOWN -> board.moveBot(0, 1);
                 case LEFT -> board.moveBot(-1, 0);
                 case UP -> board.moveBot(0, -1);

@@ -9,7 +9,7 @@ public class Bot implements Serializable {
     private Vertex source;
     private final ArrayList<Vertex> visitedVertices;
 
-    public final static int MAX_DISTANCE = 3;
+    public final static int MAX_DISTANCE = 4;
 
     public Bot(int x, int y) {
         this.x = x;

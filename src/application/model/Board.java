@@ -7,7 +7,6 @@ public class Board implements Serializable {
     private final Player player1;
     private final Player player2;
     private Player currentPlayer;
-    private Bot selectedBot;
 
     private final ArrayList<ArrayList<Tile[]>> tiles = new ArrayList<>();
 
@@ -22,7 +21,6 @@ public class Board implements Serializable {
         this.player1 = new Player(name1, new Vertex(0, 0));
         this.player2 = new Player(name2, new Vertex(BOARD_WIDTH, BOARD_HEIGHT));
         this.currentPlayer = this.player1;
-        this.selectedBot = this.currentPlayer.getBots().get(0);
 
         for (int y = 0; y <= BOARD_HEIGHT; y++) {
             ArrayList<Tile[]> rowTiles = new ArrayList<>();
@@ -55,10 +53,6 @@ public class Board implements Serializable {
 
     public Player getCurrentPlayer() {
         return this.currentPlayer;
-    }
-
-    public Bot getSelectedBot() {
-        return this.selectedBot;
     }
 
 
@@ -191,23 +185,22 @@ public class Board implements Serializable {
         }
     }
 
-    public void selectBot1() {
-        this.selectedBot = this.currentPlayer.getBots().get(0);
+    public Bot getSelectedBot() {
+        return this.currentPlayer.getSelectedBot();
     }
 
-    public void selectBot2() {
-        this.selectedBot = this.currentPlayer.getBots().get(1);
-    }
+   public void changeBot() {
+        this.currentPlayer.changeBot();
+   }
 
     public void moveBot(int x, int y) {
-        int newX = this.selectedBot.getX() + x;
-        int newY = this.selectedBot.getY() + y;
+        int newX = this.currentPlayer.getSelectedBot().getX() + x;
+        int newY = this.currentPlayer.getSelectedBot().getY() + y;
         if (0 <= newX && newX <= Board.BOARD_WIDTH  &&  0 <= newY && newY <= Board.BOARD_HEIGHT) {
-            if (this.selectedBot.move(x, y)) {
+            if (this.currentPlayer.getSelectedBot().move(x, y)) {
                 this.update();
                 Move move = new Move(this);
                 this.changePlayer();
-                this.selectedBot = this.currentPlayer.getBots().get(0);
             }
         }
     }
