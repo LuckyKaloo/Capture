@@ -1,6 +1,8 @@
 package application.model.logic;
 
-public class Player  {
+import java.io.Serializable;
+
+public class Player implements Serializable {
     private static int numPlayers = 0;
 
     private final String name;

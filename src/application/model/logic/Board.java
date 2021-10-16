@@ -1,7 +1,11 @@
 package application.model.logic;
 
-import java.io.Serializable;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.io.*;
 import java.util.ArrayList;
+import java.util.Base64;
+import java.util.HashMap;
 
 public class Board implements Serializable {
     private final Player player1;
@@ -10,8 +14,8 @@ public class Board implements Serializable {
 
     private final ArrayList<ArrayList<int[]>> tiles = new ArrayList<>();
 
-    public final static int BOARD_WIDTH = 15;
-    public final static int BOARD_HEIGHT = 10;
+    public final transient static int BOARD_WIDTH = 15;
+    public final transient static int BOARD_HEIGHT = 10;
 
     public Board() {
         this("Player 1", "Player 2");
@@ -55,174 +59,31 @@ public class Board implements Serializable {
         return this.currentPlayer;
     }
 
-
-    public void update() {
-        if (player1.formsClosedLoop()) {
-            capture(player1);
-        }
-
-        if (player2.formsClosedLoop()) {
-            capture(player2);
-        }
-    }
-
-    private void capture(Player player) {
-        captureAxis(true, player);
-        captureAxis(false, player);
-        player.closeLoop();
-
-        // checking if game is over
-        int player1Area = 0, player2Area = 0;
-        for (ArrayList<int[]> rows: tiles) {
-            for (int[] square: rows) {
-                for (int tile: square) {
-                    if (tile == player1.getId()) {
-                        player1Area++;
-                    } else if (tile == player2.getId()) {
-                        player2Area++;
-                    }
-                }
-            }
-        }
-        player1.setArea(player1Area);
-        player2.setArea(player2Area);
-
-        if (player1Area + player2Area == BOARD_HEIGHT * BOARD_WIDTH * 4) {
-            endGame();
-        }
-    }
-
-    private void captureAxis(boolean horizontal, Player player) {
-        int closeSide, farSide, perpLength, paraLength;
-        if (horizontal) {
-            closeSide = 2;
-            farSide = 0;
-            perpLength = BOARD_HEIGHT;
-            paraLength = BOARD_WIDTH;
-        } else {
-            closeSide = 1;
-            farSide = 3;
-            perpLength = BOARD_WIDTH;
-            paraLength = BOARD_HEIGHT;
-        }
-
-        // boolean[] is stored as {negative, vertical, positive}
-        ArrayList<ArrayList<boolean[]>> axisEdges = new ArrayList<>();
-        for (int perp = 0; perp < perpLength; perp++) {
-            ArrayList<boolean[]> lineEdges = new ArrayList<>();
-            for (int para = 0; para < paraLength; para++) {
-                lineEdges.add(new boolean[]{false, false, false});
-            }
-            axisEdges.add(lineEdges);
-        }
-
-        for (Bot bot: player.getBots()) {
-            for (int i = 0; i < bot.getVisitedVertices().size() - 1; i++) {
-                Vertex start = bot.getVisitedVertices().get(i);
-                Vertex end = bot.getVisitedVertices().get(i + 1);
-
-                if (horizontal) {
-                    if (start.Y() == end.Y()) {
-                        continue;
-                    }
-                } else {
-                    if (start.X() == end.X()) {
-                        continue;
-                    }
-                }
-
-                int para, perp, edgeType;
-                if (horizontal) {
-                    para = Math.min(start.X(), end.X());
-                    perp = Math.min(start.Y(), end.Y());
-                    edgeType = (start.X() - end.X()) / (start.Y() - end.Y()) + 1;
-                } else {
-                    para = Math.min(start.Y(), end.Y());
-                    perp = Math.min(start.X(), end.X());
-                    edgeType = (start.Y() - end.Y()) / (start.X() - end.X()) + 1;
-                }
-
-                if (para < paraLength && perp < perpLength) {
-                    axisEdges.get(perp).get(para)[edgeType] = !axisEdges.get(perp).get(para)[edgeType];
-                }
-            }
-        }
-
-        for (int perp = 0; perp < perpLength; perp++) {
-            ArrayList<boolean[]> lineEdges = axisEdges.get(perp);
-            boolean inLoop = false;
-
-            for (int para = 0; para < paraLength; para++) {
-                boolean[] edgeTypes = lineEdges.get(para);
-                int[] square;
-                if (horizontal) {
-                    square = tiles.get(perp).get(para);
-                } else {
-                    square = tiles.get(para).get(perp);
-                }
-
-                boolean closeInLoop = edgeTypes[1] != inLoop;
-
-                if (edgeTypes[0] == edgeTypes[2]) {
-                    if (closeInLoop) {
-                        square[closeSide] = player.getId();
-                        square[farSide] = player.getId();
-                    }
-                } else {
-                    if (closeInLoop) {
-                        square[closeSide] = player.getId();
-                    } else {
-                        square[farSide] = player.getId();
-                    }
-                }
-
-                int sides = 0;
-                for (boolean bool: edgeTypes) {
-                    if (bool) {
-                        sides++;
-                    }
-                }
-
-                if (sides % 2 == 1) {
-                    inLoop = !inLoop;
-                }
-            }
-        }
-    }
-
-    public Bot getSelectedBot() {
-        return this.currentPlayer.getSelectedBot();
-    }
-
-   public void changeBot() {
-        this.currentPlayer.changeBot();
-   }
-
-    public void moveBot(int x, int y) {
-        int newX = this.currentPlayer.getSelectedBot().getX() + x;
-        int newY = this.currentPlayer.getSelectedBot().getY() + y;
-        if (0 <= newX && newX <= Board.BOARD_WIDTH  &&  0 <= newY && newY <= Board.BOARD_HEIGHT) {
-            if (this.currentPlayer.getSelectedBot().move(x, y)) {
-                this.update();
-                Move move = new Move(this);
-                this.changePlayer();
-            }
-        }
-    }
-
-    private void changePlayer() {
-        if (currentPlayer == player1) {
-            currentPlayer = player2;
-        } else if (currentPlayer == player2) {
-            currentPlayer = player1;
-        }
-    }
-
-    private void endGame() {
-
+    public void setCurrentPlayer(Player player) {
+        this.currentPlayer = player;
     }
 
     public String toData() {
-        return null;
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(baos);
+            oos.writeObject(this);
+            oos.close();
+            return new String(Base64.getEncoder().encode(baos.toByteArray()));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static Board loadData(String str) {
+        try {
+            ObjectInputStream ois = new ObjectInputStream(
+                    new ByteArrayInputStream(Base64.getDecoder().decode(str.getBytes())));
+            return (Board) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

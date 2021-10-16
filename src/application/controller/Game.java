@@ -1,9 +1,7 @@
 package application.controller;
 
-import application.model.logic.Board;
-import application.model.logic.Bot;
-import application.model.logic.Player;
-import application.model.logic.Vertex;
+import application.model.logic.*;
+import com.google.firebase.database.FirebaseDatabase;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -13,7 +11,17 @@ import javafx.scene.paint.Color;
 import java.util.ArrayList;
 
 public class Game {
-    private final Board board = new Board();
+    private final Logic logic;
+
+    public Game(String name1, String name2) {
+        logic = new Logic(name1, name2);
+
+        FirebaseDatabase.getInstance().getReference().child("games").child(name1).child("board").setValue(logic.getBoard().toData(), ((databaseError, databaseReference) -> {}));
+    }
+
+    public Game(Board board, boolean isPlayer1) {
+        logic = new Logic(board, isPlayer1);
+    }
 
     private Scene scene;
     private Canvas canvas;
@@ -45,15 +53,15 @@ public class Game {
 
         scene.setOnKeyPressed(e -> {
             switch (e.getCode()) {
-                case T -> board.changeBot();
-                case DOWN -> board.moveBot(0, 1);
-                case LEFT -> board.moveBot(-1, 0);
-                case UP -> board.moveBot(0, -1);
-                case RIGHT -> board.moveBot(1, 0);
-                case Q -> board.moveBot(-1, -1);
-                case E -> board.moveBot(1, -1);
-                case A -> board.moveBot(-1, 1);
-                case D -> board.moveBot(1, 1);
+                case T -> logic.changeBot();
+                case DOWN -> logic.moveBot(0, 1);
+                case LEFT -> logic.moveBot(-1, 0);
+                case UP -> logic.moveBot(0, -1);
+                case RIGHT -> logic.moveBot(1, 0);
+                case Q -> logic.moveBot(-1, -1);
+                case E -> logic.moveBot(1, -1);
+                case A -> logic.moveBot(-1, 1);
+                case D -> logic.moveBot(1, 1);
             }
 
             drawCanvas();
@@ -67,7 +75,15 @@ public class Game {
     }
 
     public Scene getScene() {
-        return scene;
+        return this.scene;
+    }
+
+    public Logic getLogic() {
+        return this.logic;
+    }
+
+    public Board getBoard() {
+        return logic.getBoard();
     }
 
     private void drawCanvas() {
@@ -75,12 +91,12 @@ public class Game {
         ArrayList<Vertex[]> player2Edges = new ArrayList<>();
         ArrayList<Vertex[]> commonEdges = new ArrayList<>();
 
-        for (Bot bot: board.getPlayer1().getBots()) {
+        for (Bot bot: logic.getBoard().getPlayer1().getBots()) {
             for (int i = 0; i < bot.getVisitedVertices().size()-1; i++) {
                 player1Edges.add(new Vertex[]{bot.getVisitedVertices().get(i), bot.getVisitedVertices().get(i+1)});
             }
         }
-        for (Bot bot: board.getPlayer2().getBots()) {
+        for (Bot bot: logic.getBoard().getPlayer2().getBots()) {
             for (int i = 0; i < bot.getVisitedVertices().size()-1; i++) {
                 player2Edges.add(new Vertex[]{bot.getVisitedVertices().get(i), bot.getVisitedVertices().get(i+1)});
             }
@@ -104,8 +120,8 @@ public class Game {
         gc.setFill(BACKGROUND);
         gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
-        drawTiles(PLAYER1_AREA, board.getPlayer1());
-        drawTiles(PLAYER2_AREA, board.getPlayer2());
+        drawTiles(PLAYER1_AREA, logic.getBoard().getPlayer1());
+        drawTiles(PLAYER2_AREA, logic.getBoard().getPlayer2());
 
         gc.setStroke(LINE);
         gc.beginPath();
@@ -152,10 +168,11 @@ public class Game {
         }
 
         gc.setFill(BOT_COLOR);
-        gc.fillOval(board.getSelectedBot().getX() * SPACING - CIRCLE_RADIUS + PADDING, board.getSelectedBot().getY() * SPACING - CIRCLE_RADIUS + PADDING, CIRCLE_RADIUS * 2, CIRCLE_RADIUS * 2);
+        gc.fillOval(logic.getSelectedBot().getX() * SPACING - CIRCLE_RADIUS + PADDING, logic.getSelectedBot().getY() * SPACING - CIRCLE_RADIUS + PADDING, CIRCLE_RADIUS * 2, CIRCLE_RADIUS * 2);
 
         gc.setStroke(BOUNDARY_COLOR);
-        gc.strokeOval((board.getCurrentPlayer().getSource().X() - Bot.MAX_DISTANCE) * SPACING + PADDING, (board.getCurrentPlayer().getSource().Y() - Bot.MAX_DISTANCE) * SPACING + PADDING,
+        gc.strokeOval((logic.getBoard().getCurrentPlayer().getSource().X() - Bot.MAX_DISTANCE) * SPACING + PADDING,
+                (logic.getBoard().getCurrentPlayer().getSource().Y() - Bot.MAX_DISTANCE) * SPACING + PADDING,
                 Bot.MAX_DISTANCE * SPACING * 2, Bot.MAX_DISTANCE * SPACING * 2);
     }
 
@@ -175,7 +192,7 @@ public class Game {
         for (int col = 0; col < Board.BOARD_WIDTH; col++) {
             for (int row = 0; row < Board.BOARD_HEIGHT; row++) {
                 for (int i = 0; i < 4; i++) {
-                    if (board.getTiles().get(row).get(col)[i] == player.getId()) {
+                    if (logic.getBoard().getTiles().get(row).get(col)[i] == player.getId()) {
                         double[] xCoords;
                         double[] yCoords;
 

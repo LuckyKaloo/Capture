@@ -16,7 +16,7 @@ public class Move implements Serializable {
         this.board = move.board;
     }
 
-    public String getMove() {
+    public String toData() {
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -25,5 +25,9 @@ public class Move implements Serializable {
         } catch (IOException e) {
             return null;
         }
+    }
+
+    public Board getBoard() {
+        return this.board;
     }
 }
