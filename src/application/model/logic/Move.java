@@ -1,4 +1,4 @@
-package application.model;
+package application.model.logic;
 
 import java.io.*;
 import java.util.Base64;

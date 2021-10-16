@@ -1,4 +1,4 @@
-package application.model;
+package application.model.logic;
 
 public class Player  {
     private static int numPlayers = 0;

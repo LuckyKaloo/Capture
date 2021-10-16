@@ -1,6 +1,9 @@
 package application.controller;
 
-import application.model.*;
+import application.model.logic.Board;
+import application.model.logic.Bot;
+import application.model.logic.Player;
+import application.model.logic.Vertex;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;

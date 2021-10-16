@@ -1,4 +1,4 @@
-package application.model;
+package application.model.logic;
 
 import java.io.Serializable;
 import java.util.ArrayList;

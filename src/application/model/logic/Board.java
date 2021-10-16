@@ -1,4 +1,4 @@
-package application.model;
+package application.model.logic;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -67,13 +67,27 @@ public class Board implements Serializable {
     }
 
     private void capture(Player player) {
-        player.setArea(0);
         captureAxis(true, player);
         captureAxis(false, player);
         player.closeLoop();
 
         // checking if game is over
-        if (player1.getArea() + player2.getArea() == BOARD_HEIGHT * BOARD_WIDTH * 4) {
+        int player1Area = 0, player2Area = 0;
+        for (ArrayList<int[]> rows: tiles) {
+            for (int[] square: rows) {
+                for (int tile: square) {
+                    if (tile == player1.getId()) {
+                        player1Area++;
+                    } else if (tile == player2.getId()) {
+                        player2Area++;
+                    }
+                }
+            }
+        }
+        player1.setArea(player1Area);
+        player2.setArea(player2Area);
+
+        if (player1Area + player2Area == BOARD_HEIGHT * BOARD_WIDTH * 4) {
             endGame();
         }
     }
@@ -117,9 +131,7 @@ public class Board implements Serializable {
                     }
                 }
 
-                int para;
-                int perp;
-                int edgeType;
+                int para, perp, edgeType;
                 if (horizontal) {
                     para = Math.min(start.X(), end.X());
                     perp = Math.min(start.Y(), end.Y());
@@ -210,7 +222,7 @@ public class Board implements Serializable {
 
     }
 
-    public String getBoard() {
+    public String toData() {
         return null;
     }
 }
