@@ -10,7 +10,7 @@ import javafx.scene.paint.Color;
 import java.util.ArrayList;
 
 public class Game {
-    private Logic logic = new Logic();
+    private final Board board = new Board();
 
     private Scene scene;
     private Canvas canvas;
@@ -27,6 +27,7 @@ public class Game {
     private final static Color PLAYER2_LINE = Color.rgb(40, 40, 255);
     private final static Color PLAYER2_AREA = Color.rgb(120, 120, 255);
     private final static Color MIXED_LINE = Color.rgb(255, 40, 255);
+    private final static Color VERTEX_COLOR = Color.WHITE;
     private final static Color BOT_COLOR = Color.rgb(72, 217, 67);
     private final static Color BOUNDARY_COLOR = Color.rgb(229, 210, 68);
 
@@ -41,16 +42,16 @@ public class Game {
 
         scene.setOnKeyPressed(e -> {
             switch (e.getCode()) {
-                case T -> logic.selectBot1();
-                case Y -> logic.selectBot2();
-                case DOWN -> logic.moveBot(0, 1);
-                case LEFT -> logic.moveBot(-1, 0);
-                case UP -> logic.moveBot(0, -1);
-                case RIGHT -> logic.moveBot(1, 0);
-                case Q -> logic.moveBot(-1, -1);
-                case E -> logic.moveBot(1, -1);
-                case A -> logic.moveBot(-1, 1);
-                case D -> logic.moveBot(1, 1);
+                case T -> board.selectBot1();
+                case Y -> board.selectBot2();
+                case DOWN -> board.moveBot(0, 1);
+                case LEFT -> board.moveBot(-1, 0);
+                case UP -> board.moveBot(0, -1);
+                case RIGHT -> board.moveBot(1, 0);
+                case Q -> board.moveBot(-1, -1);
+                case E -> board.moveBot(1, -1);
+                case A -> board.moveBot(-1, 1);
+                case D -> board.moveBot(1, 1);
             }
 
             drawCanvas();
@@ -72,12 +73,12 @@ public class Game {
         ArrayList<Vertex[]> player2Edges = new ArrayList<>();
         ArrayList<Vertex[]> commonEdges = new ArrayList<>();
 
-        for (Bot bot: logic.getBoard().getPlayer1().getBots()) {
+        for (Bot bot: board.getPlayer1().getBots()) {
             for (int i = 0; i < bot.getVisitedVertices().size()-1; i++) {
                 player1Edges.add(new Vertex[]{bot.getVisitedVertices().get(i), bot.getVisitedVertices().get(i+1)});
             }
         }
-        for (Bot bot: logic.getBoard().getPlayer2().getBots()) {
+        for (Bot bot: board.getPlayer2().getBots()) {
             for (int i = 0; i < bot.getVisitedVertices().size()-1; i++) {
                 player2Edges.add(new Vertex[]{bot.getVisitedVertices().get(i), bot.getVisitedVertices().get(i+1)});
             }
@@ -98,8 +99,8 @@ public class Game {
         gc.setFill(BACKGROUND);
         gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
-        drawTiles(PLAYER1_AREA, logic.getBoard().getPlayer1());
-        drawTiles(PLAYER2_AREA, logic.getBoard().getPlayer2());
+        drawTiles(PLAYER1_AREA, board.getPlayer1());
+        drawTiles(PLAYER2_AREA, board.getPlayer2());
 
         gc.setStroke(LINE);
         gc.beginPath();
@@ -138,7 +139,7 @@ public class Game {
         drawEdges(player2Edges, PLAYER2_LINE);
         drawEdges(commonEdges, MIXED_LINE);
 
-        gc.setFill(Color.WHITE);
+        gc.setFill(VERTEX_COLOR);
         for (int col = 0; col <= Board.BOARD_WIDTH; col++) {
             for (int row = 0; row <= Board.BOARD_HEIGHT; row++) {
                 gc.fillOval(col * SPACING - CIRCLE_RADIUS + PADDING, row * SPACING - CIRCLE_RADIUS + PADDING, CIRCLE_RADIUS * 2, CIRCLE_RADIUS * 2);
@@ -146,10 +147,10 @@ public class Game {
         }
 
         gc.setFill(BOT_COLOR);
-        gc.fillOval(logic.getSelectedBot().getX() * SPACING - CIRCLE_RADIUS + PADDING, logic.getSelectedBot().getY() * SPACING - CIRCLE_RADIUS + PADDING, CIRCLE_RADIUS * 2, CIRCLE_RADIUS * 2);
+        gc.fillOval(board.getSelectedBot().getX() * SPACING - CIRCLE_RADIUS + PADDING, board.getSelectedBot().getY() * SPACING - CIRCLE_RADIUS + PADDING, CIRCLE_RADIUS * 2, CIRCLE_RADIUS * 2);
 
         gc.setStroke(BOUNDARY_COLOR);
-        gc.strokeOval((logic.getCurrentPlayer().getSource().X() - Bot.MAX_DISTANCE) * SPACING + PADDING, (logic.getCurrentPlayer().getSource().Y() - Bot.MAX_DISTANCE) * SPACING + PADDING,
+        gc.strokeOval((board.getCurrentPlayer().getSource().X() - Bot.MAX_DISTANCE) * SPACING + PADDING, (board.getCurrentPlayer().getSource().Y() - Bot.MAX_DISTANCE) * SPACING + PADDING,
                 Bot.MAX_DISTANCE * SPACING * 2, Bot.MAX_DISTANCE * SPACING * 2);
     }
 
@@ -169,7 +170,7 @@ public class Game {
         for (int col = 0; col < Board.BOARD_WIDTH; col++) {
             for (int row = 0; row < Board.BOARD_HEIGHT; row++) {
                 for (int i = 0; i < 4; i++) {
-                    if (logic.getBoard().getTiles().get(row).get(col)[i].getControllingPlayer() == player) {
+                    if (board.getTiles().get(row).get(col)[i].getControllingPlayer() == player) {
                         double[] xCoords;
                         double[] yCoords;
 

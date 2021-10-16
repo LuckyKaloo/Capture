@@ -6,6 +6,9 @@ import java.util.ArrayList;
 public class Board implements Serializable {
     private final Player player1;
     private final Player player2;
+    private Player currentPlayer;
+    private Bot selectedBot;
+
     private final ArrayList<ArrayList<Tile[]>> tiles = new ArrayList<>();
 
     public final static int BOARD_WIDTH = 15;
@@ -18,6 +21,8 @@ public class Board implements Serializable {
     public Board(String name1, String name2) {
         this.player1 = new Player(name1, new Vertex(0, 0));
         this.player2 = new Player(name2, new Vertex(BOARD_WIDTH, BOARD_HEIGHT));
+        this.currentPlayer = this.player1;
+        this.selectedBot = this.currentPlayer.getBots().get(0);
 
         for (int y = 0; y <= BOARD_HEIGHT; y++) {
             ArrayList<Tile[]> rowTiles = new ArrayList<>();
@@ -36,27 +41,26 @@ public class Board implements Serializable {
         }
     }
 
-    public Player getPlayer1() {
-        return player1;
-    }
-
-    public Player getPlayer2() {
-        return player2;
-    }
-
-    public Player changePlayer(Player player) {
-        if (player == player1) {
-            return player2;
-        } else if (player == player2) {
-            return player1;
-        }
-
-        return null;
-    }
-
     public ArrayList<ArrayList<Tile[]>> getTiles() {
         return tiles;
     }
+
+    public Player getPlayer1() {
+        return this.player1;
+    }
+
+    public Player getPlayer2() {
+        return this.player2;
+    }
+
+    public Player getCurrentPlayer() {
+        return this.currentPlayer;
+    }
+
+    public Bot getSelectedBot() {
+        return this.selectedBot;
+    }
+
 
     public void update() {
         if (player1.formsClosedLoop()) {
@@ -184,6 +188,35 @@ public class Board implements Serializable {
                     inLoop = !inLoop;
                 }
             }
+        }
+    }
+
+    public void selectBot1() {
+        this.selectedBot = this.currentPlayer.getBots().get(0);
+    }
+
+    public void selectBot2() {
+        this.selectedBot = this.currentPlayer.getBots().get(1);
+    }
+
+    public void moveBot(int x, int y) {
+        int newX = this.selectedBot.getX() + x;
+        int newY = this.selectedBot.getY() + y;
+        if (0 <= newX && newX <= Board.BOARD_WIDTH  &&  0 <= newY && newY <= Board.BOARD_HEIGHT) {
+            if (this.selectedBot.move(x, y)) {
+                this.update();
+                Move move = new Move(this);
+                this.changePlayer();
+                this.selectedBot = this.currentPlayer.getBots().get(0);
+            }
+        }
+    }
+
+    private void changePlayer() {
+        if (currentPlayer == player1) {
+            currentPlayer = player2;
+        } else if (currentPlayer == player2) {
+            currentPlayer = player1;
         }
     }
 
