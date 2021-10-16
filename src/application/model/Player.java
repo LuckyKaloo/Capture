@@ -1,9 +1,10 @@
 package application.model;
 
-import java.util.ArrayList;
-
 public class Player  {
+    private static int numPlayers = 0;
+
     private final String name;
+    private final int id;
     private Vertex source;
     private final Bot bot1;
     private final Bot bot2;
@@ -18,29 +19,27 @@ public class Player  {
         this.selectedBot = bot1;
         this.bots = new Bot[]{bot1, bot2};
 
+        this.id = numPlayers;
+        numPlayers++;
+
         this.source = startVertex;
         this.area = 0;
     }
 
     public String getName() {
-        return name;
+        return this.name;
+    }
+
+    public int getId() {
+        return this.id;
     }
 
     public double getArea() {
-        return area;
+        return this.area;
     }
 
     public void setArea(double area) {
         this.area = area;
-    }
-
-    public void captureTile(Tile tile) {
-        tile.setControllingPlayer(this);
-        area++;
-    }
-
-    public void setSource(Vertex source) {
-        this.source = source;
     }
 
     public Vertex getSource() {

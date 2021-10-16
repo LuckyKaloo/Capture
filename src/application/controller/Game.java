@@ -83,9 +83,12 @@ public class Game {
             }
         }
 
-        for (Vertex[] vertices1: player1Edges) {
-            for (Vertex[] vertices2: player2Edges) {
-                if (vertices1[0].equals(vertices2[0]) && vertices1[1].equals(vertices2[1])) {
+        for (int i = player1Edges.size()-1; i >= 0; i--) {
+            Vertex[] vertices1 = player1Edges.get(i);
+            for (int j = player2Edges.size()-1; j >= 0; j--) {
+                Vertex[] vertices2 = player2Edges.get(j);
+                if ((vertices1[0].equals(vertices2[0]) && vertices1[1].equals(vertices2[1])) ||
+                        (vertices1[0].equals(vertices2[1]) && vertices1[1].equals(vertices2[0]))) {
                     commonEdges.add(vertices1);
                     player1Edges.remove(vertices1);
                     player2Edges.remove(vertices2);
@@ -169,7 +172,7 @@ public class Game {
         for (int col = 0; col < Board.BOARD_WIDTH; col++) {
             for (int row = 0; row < Board.BOARD_HEIGHT; row++) {
                 for (int i = 0; i < 4; i++) {
-                    if (board.getTiles().get(row).get(col)[i].getControllingPlayer() == player) {
+                    if (board.getTiles().get(row).get(col)[i] == player.getId()) {
                         double[] xCoords;
                         double[] yCoords;
 

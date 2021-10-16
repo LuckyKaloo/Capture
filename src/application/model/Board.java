@@ -8,7 +8,7 @@ public class Board implements Serializable {
     private final Player player2;
     private Player currentPlayer;
 
-    private final ArrayList<ArrayList<Tile[]>> tiles = new ArrayList<>();
+    private final ArrayList<ArrayList<int[]>> tiles = new ArrayList<>();
 
     public final static int BOARD_WIDTH = 15;
     public final static int BOARD_HEIGHT = 10;
@@ -23,13 +23,13 @@ public class Board implements Serializable {
         this.currentPlayer = this.player1;
 
         for (int y = 0; y <= BOARD_HEIGHT; y++) {
-            ArrayList<Tile[]> rowTiles = new ArrayList<>();
+            ArrayList<int[]> rowTiles = new ArrayList<>();
 
             for (int x = 0; x <= BOARD_WIDTH; x++) {
                 if (y < BOARD_HEIGHT &&  x < BOARD_WIDTH) {
-                    Tile[] square = new Tile[4];
+                    int[] square = new int[4];
                     for (int side = 0; side < 4; side++) {
-                        square[side] = new Tile(x, y, side);
+                        square[side] = -1;
                     }
                     rowTiles.add(square);
                 }
@@ -39,7 +39,7 @@ public class Board implements Serializable {
         }
     }
 
-    public ArrayList<ArrayList<Tile[]>> getTiles() {
+    public ArrayList<ArrayList<int[]>> getTiles() {
         return tiles;
     }
 
@@ -79,10 +79,7 @@ public class Board implements Serializable {
     }
 
     private void captureAxis(boolean horizontal, Player player) {
-        int closeSide;
-        int farSide;
-        int perpLength;
-        int paraLength;
+        int closeSide, farSide, perpLength, paraLength;
         if (horizontal) {
             closeSide = 2;
             farSide = 0;
@@ -145,7 +142,7 @@ public class Board implements Serializable {
 
             for (int para = 0; para < paraLength; para++) {
                 boolean[] edgeTypes = lineEdges.get(para);
-                Tile[] square;
+                int[] square;
                 if (horizontal) {
                     square = tiles.get(perp).get(para);
                 } else {
@@ -154,20 +151,16 @@ public class Board implements Serializable {
 
                 boolean closeInLoop = edgeTypes[1] != inLoop;
 
-//                if (!horizontal && player == player2) {
-//                    System.out.println(closeInLoop + " " + Arrays.toString(edgeTypes) + "  X: " + Y + " Y: " + X);
-//                }
-
                 if (edgeTypes[0] == edgeTypes[2]) {
                     if (closeInLoop) {
-                        player.captureTile(square[closeSide]);
-                        player.captureTile(square[farSide]);
+                        square[closeSide] = player.getId();
+                        square[farSide] = player.getId();
                     }
                 } else {
                     if (closeInLoop) {
-                        player.captureTile(square[closeSide]);
+                        square[closeSide] = player.getId();
                     } else {
-                        player.captureTile(square[farSide]);
+                        square[farSide] = player.getId();
                     }
                 }
 
@@ -217,7 +210,7 @@ public class Board implements Serializable {
 
     }
 
-//    public String getBoard() {
-//
-//    }
+    public String getBoard() {
+        return null;
+    }
 }

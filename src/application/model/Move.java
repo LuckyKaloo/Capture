@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.Base64;
 
 public class Move implements Serializable {
-    private Board board;
+    private final Board board;
 
     public Move(Board board) {
         this.board = board;
@@ -21,7 +21,7 @@ public class Move implements Serializable {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ObjectOutputStream oos = new ObjectOutputStream(baos);
             oos.writeObject(this);
-            return new String(Base64.getEncoder().encodeToString(baos.toByteArray()));
+            return Base64.getEncoder().encodeToString(baos.toByteArray());
         } catch (IOException e) {
             return null;
         }
