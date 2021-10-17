@@ -29,6 +29,7 @@ public class Game {
     private Scene scene;
     private Canvas canvas;
     private GraphicsContext gc;
+    private Pane pane;
 
     private final static int SPACING = 60;
     private final static int PADDING = 20;
@@ -65,23 +66,7 @@ public class Game {
             }
         });
 
-        scene = new Scene(new Pane(canvas));
-
-        scene.setOnKeyPressed(e -> {
-            switch (e.getCode()) {
-                case T -> logic.changeBot();
-                case DOWN -> logic.moveBot(0, 1);
-                case LEFT -> logic.moveBot(-1, 0);
-                case UP -> logic.moveBot(0, -1);
-                case RIGHT -> logic.moveBot(1, 0);
-                case Q -> logic.moveBot(-1, -1);
-                case E -> logic.moveBot(1, -1);
-                case A -> logic.moveBot(-1, 1);
-                case D -> logic.moveBot(1, 1);
-            }
-
-            drawCanvas();
-        });
+        pane = new Pane(canvas);
 
         drawCanvas();
     }
@@ -112,6 +97,10 @@ public class Game {
 
     void end() {
 
+    }
+
+    public Pane getPane() {
+        return pane;
     }
 
     public Scene getScene() {

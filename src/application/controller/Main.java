@@ -47,8 +47,8 @@ public class Main extends Application {
         game = new Game(board, isPlayer1);
         game.start();
 
-        Main.stage.setScene(game.getScene());
-        Main.stage.show();
+        Main.stage.getScene().setRoot(game.getPane());
+        Main.stage.getScene().setOnKeyPressed(game.getAction());
     }
 
     public static void endGame() {
