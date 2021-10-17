@@ -16,8 +16,6 @@ public class Main extends Application {
     private static Game game;
     private static Stage stage;
 
-    private String name;
-
     @Override
     public void start(Stage stage) throws Exception {
         Main.stage = stage;
@@ -55,5 +53,9 @@ public class Main extends Application {
 
     public static void endGame() {
         game.end();
+    }
+
+    public static void main(String[] args) {
+        launch(args);
     }
 }

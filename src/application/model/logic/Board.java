@@ -59,8 +59,12 @@ public class Board implements Serializable {
         return this.currentPlayer;
     }
 
-    public void setCurrentPlayer(Player player) {
-        this.currentPlayer = player;
+    public void changePlayer(Player player) {
+        if (player.getName().equals(this.player1.getName())) {
+            this.currentPlayer = this.player2;
+        } else if (player.getName().equals(this.player2.getName())) {
+            this.currentPlayer = this.player1;
+        }
     }
 
     public String toData() {

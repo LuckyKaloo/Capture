@@ -30,14 +30,12 @@ public class Login implements Initializable {
         FirebaseDatabase.getInstance().getReference().addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot child: dataSnapshot.getChildren()) {
-                    if (child.getKey().equals("games")) {
-                        for (DataSnapshot player: child.getChildren()) {
-                            gamesLv.getItems().add(player.getKey());
-                        }
+                Platform.runLater(() -> gamesLv.getItems().clear());
+                for (DataSnapshot child: dataSnapshot.child("games").getChildren()) {
+                    if (child.child("started").getValue().equals("false")) {
+                        Platform.runLater(() -> gamesLv.getItems().add(child.getKey()));
                     }
                 }
-                gamesLv.refresh();
             }
 
             @Override
@@ -84,7 +82,6 @@ public class Login implements Initializable {
         ref.setValue(root, ((databaseError, databaseReference) -> {}));
 
         addPlayer(name);
-        Platform.runLater(() -> gamesLv.getItems().add(name));
 
         ValueEventListener listener = new ValueEventListener() {
             @Override
@@ -139,18 +136,13 @@ public class Login implements Initializable {
         DataSnapshot player1 = dataSnapshot.child("player1");
         DataSnapshot player2 = dataSnapshot.child("player2");
 
-        System.out.println(dataSnapshot.getValue());
-
         if (player1 != null && player2 != null) {
             Board board = new Board((String) player1.getValue(), (String) player2.getValue());
-            System.out.println(board.toData());
             ref.child("board").setValue(board.toData(), ((databaseError, databaseReference) -> {}));
             Main.startGame(board, false);
         }
 
         addPlayer(name);
-
-        Platform.runLater(() -> gamesLv.getItems().remove(gamesLv.getSelectionModel().getSelectedItem()));
     }
 
     private int nameId(DataSnapshot snapshot) {

@@ -1,25 +1,28 @@
 package application.controller;
 
 import application.model.logic.*;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
+import java.util.function.Consumer;
 
 public class Game {
+    private final String gameName;
     private final Logic logic;
 
-    public Game(String name1, String name2) {
-        logic = new Logic(name1, name2);
-
-        FirebaseDatabase.getInstance().getReference().child("games").child(name1).child("board").setValue(logic.getBoard().toData(), ((databaseError, databaseReference) -> {}));
-    }
-
     public Game(Board board, boolean isPlayer1) {
+        gameName = board.getPlayer1().getName();
         logic = new Logic(board, isPlayer1);
     }
 
@@ -49,6 +52,19 @@ public class Game {
         gc = canvas.getGraphicsContext2D();
         gc.setLineWidth(2);
 
+        FirebaseDatabase.getInstance().getReference().child("games").child(gameName).child("board").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                logic.setBoard(Board.loadData((String) dataSnapshot.getValue()));
+                Platform.runLater(() -> drawCanvas());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
         scene = new Scene(new Pane(canvas));
 
         scene.setOnKeyPressed(e -> {
@@ -68,6 +84,30 @@ public class Game {
         });
 
         drawCanvas();
+    }
+
+    public EventHandler<KeyEvent> getAction() {
+        return e -> {
+            switch (e.getCode()) {
+                case T -> logic.changeBot();
+                case DOWN -> this.moveBot(0, 1);
+                case LEFT -> this.moveBot(-1, 0);
+                case UP -> this.moveBot(0, -1);
+                case RIGHT -> this.moveBot(1, 0);
+                case Q -> this.moveBot(-1, -1);
+                case E -> this.moveBot(1, -1);
+                case A -> this.moveBot(-1, 1);
+                case D -> this.moveBot(1, 1);
+            }
+
+            drawCanvas();
+        };
+    }
+
+    private void moveBot(int x, int y) {
+        logic.moveBot(x, y);
+        FirebaseDatabase.getInstance().getReference().child("games").child(gameName).child("board").
+                setValue(logic.getBoard().toData(), ((databaseError, databaseReference) -> {}));
     }
 
     void end() {

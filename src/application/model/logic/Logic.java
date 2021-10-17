@@ -6,7 +6,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class Logic {
     private boolean isPlayer1;
@@ -42,7 +41,7 @@ public class Logic {
         });
     }
 
-    private void setBoard(Board board) {
+    public void setBoard(Board board) {
         this.board = board;
 
         if (isPlayer1) {
@@ -198,9 +197,7 @@ public class Logic {
             if (0 <= newX && newX <= Board.BOARD_WIDTH && 0 <= newY && newY <= Board.BOARD_HEIGHT) {
                 if (player.getSelectedBot().move(x, y)) {
                     this.update();
-
-                    HashMap<String, String> map = new HashMap<>();
-                    map.put("board", board.toData());
+                    this.board.changePlayer(player);
                 }
             }
         }
