@@ -46,7 +46,7 @@ public class Game {
     private final static Color BOT_COLOR = Color.rgb(72, 217, 67);
     private final static Color BOUNDARY_COLOR = Color.rgb(229, 210, 68);
 
-    void start(Board board, boolean isPlayer1) {
+    public void start(Board board, boolean isPlayer1) {
         gameName = board.getPlayer1().getName();
         logic = new Logic(board, isPlayer1);
 
@@ -56,6 +56,9 @@ public class Game {
 
         gc = canvas.getGraphicsContext2D();
         gc.setLineWidth(2);
+
+        gc.setFill(Color.BLACK);
+        gc.fillRect(0, 0, 500, 500);
 
         System.out.println(gameName + " " + logic + " " + canvas + " " + gc);
 

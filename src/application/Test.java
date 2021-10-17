@@ -1,9 +1,40 @@
 package application;
 
+import application.controller.Game;
+import application.controller.Main;
 import application.model.logic.Board;
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
-public class Test {
+import java.io.IOException;
+import java.util.Objects;
+
+public class Test extends Application {
     public static void main(String[] args) {
-        Board board = Board.loadData("4ABVsABGJvdHN0AB5bTGFwcGxpY2F0aW9uL21vZGVsL2xvZ2ljL0JvdDtMAARuYW1ldAASTGphdmEvbGFuZy9TdHJpbmc7TAALc2VsZWN0ZWRCb3RxAH4ABUwABnNvdXJjZXQAIExhcHBsaWNhdGlvbi9tb2RlbC9sb2dpYy9WZXJ0ZXg7eHAAAAAAAAAAAAAAAABzcgAbYXBwbGljYXRpb24ubW9kZWwubG9naWMuQm90rGeUoarbTv4CAARJAAF4SQABeUwABnNvdXJjZXEAfgAITAAPdmlzaXRlZFZlcnRpY2VzcQB+AAJ4cAAAAAAAAAAAc3IAHmFwcGxpY2F0aW9uLm1vZGVsLmxvZ2ljLlZlcnRleAAAAAAAAAAAAgACSQABWEkAAVl4cAAAAAAAAAAAc3IAE2phdmEudXRpbC5BcnJheUxpc3R4gdIdmcdhnQMAAUkABHNpemV4cAAAAAF3BAAAAAFzcQB+AAwAAAAAAAAAAHhzcQB+AAoAAAAAAAAAAHNxAH4ADAAAAAAAAAAAc3EAfgAOAAAAAXcEAAAAAXNxAH4ADAAAAAAAAAAAeHVyAB5bTGFwcGxpY2F0aW9uLm1vZGVsLmxvZ2ljLkJvdDudzp2wam/23gIAAHhwAAAAAnEAfgALcQB+ABF0AANhLTBxAH4AC3NxAH4ADAAAAAAAAAAAcQB+AAlzcQB+AAQAAAAAAAAAAAAAAAFzcQB+AAoAAAAPAAAACnNxAH4ADAAAAA8AAAAKc3EAfgAOAAAAAXcEAAAAAXNxAH4ADAAAAA8AAAAKeHNxAH4ACgAAAA8AAAAKc3EAfgAMAAAADwAAAApzcQB+AA4AAAABdwQAAAABc3EAfgAMAAAADwAAAAp4dXEAfgAVAAAAAnEAfgAacQB+AB50AANiLTBxAH4AGnNxAH4ADAAAAA8AAAAKc3EAfgAOAAAAC3cEAAAAC3NxAH4ADgAAAA93BAAAAA91cgACW0lNumAmduqypQIAAHhwAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////eHNxAH4ADgAAAA93BAAAAA91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////94c3EAfgAOAAAAD3cEAAAAD3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3hzcQB+AA4AAAAPdwQAAAAPdXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////eHNxAH4ADgAAAA93BAAAAA91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////94c3EAfgAOAAAAD3cEAAAAD3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3hzcQB+AA4AAAAPdwQAAAAPdXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////eHNxAH4ADgAAAA93BAAAAA91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////94c3EAfgAOAAAAD3cEAAAAD3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3hzcQB+AA4AAAAPdwQAAAAPdXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////dXEAfgAnAAAABP////////////////////91cQB+ACcAAAAE/////////////////////3VxAH4AJwAAAAT/////////////////////eHNxAH4ADgAAAAB3BAAAAAB4eA==");
+        launch(args);
+    }
+
+    @Override
+    public void start(Stage stage) throws Exception {
+        FirebaseOptions options = FirebaseOptions.builder()
+                .setCredentials(GoogleCredentials.fromStream(Objects.requireNonNull(getClass().getResourceAsStream("/application/resources/google-credentials.json"))))
+                .setDatabaseUrl("https://capture-c2db4-default-rtdb.asia-southeast1.firebasedatabase.app")
+                .build();
+
+        FirebaseApp.initializeApp(options);
+
+        FXMLLoader loader = new FXMLLoader(Main.class.getResource("/application/view/game.fxml"));
+        stage.setScene(new Scene(loader.load()));
+
+        Game game = loader.getController();
+        game.start(new Board("player1", "player2"), true);
+        stage.getScene().setOnKeyPressed(game.getAction());
+
+        stage.show();
     }
 }
