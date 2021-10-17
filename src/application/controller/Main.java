@@ -37,12 +37,17 @@ public class Main extends Application {
     public static void startGame(Board board, boolean isPlayer1) {
         Platform.runLater(() -> {
             try {
+                Main.stage.close();
+
+                Stage stage = new Stage();
                 FXMLLoader loader = new FXMLLoader(Main.class.getResource("/application/view/game.fxml"));
-                Main.stage.getScene().setRoot(loader.load());
+                stage.setScene(new Scene(loader.load()));
+                stage.setMaximized(true);
+                stage.show();
 
                 Game game = loader.getController();
                 game.start(board, isPlayer1);
-                Main.stage.getScene().setOnKeyPressed(game.getAction());
+                stage.getScene().setOnKeyPressed(game.getAction());
             } catch (IOException e) {
                 e.printStackTrace();
             }

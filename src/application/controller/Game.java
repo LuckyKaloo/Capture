@@ -60,6 +60,8 @@ public class Game {
         canvas.widthProperty().bind(pane.widthProperty());
         canvas.heightProperty().bind(pane.heightProperty());
 
+        System.out.println(canvas.heightProperty().get() + " " + canvas.widthProperty().get());
+
         double xSpacing = (canvas.getWidth() - 2 * PADDING) / Board.BOARD_WIDTH;
         double ySpacing = (canvas.getHeight() - 2 * PADDING) / Board.BOARD_HEIGHT;
 
@@ -72,6 +74,8 @@ public class Game {
             xPadding = (canvas.getWidth() - spacing * Board.BOARD_WIDTH) / 2;
             yPadding = PADDING;
         }
+
+        System.out.println(spacing + " " + xPadding + " " + yPadding);
 
         gc = canvas.getGraphicsContext2D();
         gc.setLineWidth(2);
