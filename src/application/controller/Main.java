@@ -5,8 +5,8 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
@@ -35,16 +35,18 @@ public class Main extends Application {
     }
 
     public static void startGame(Board board, boolean isPlayer1) {
-        try {
-            FXMLLoader loader = new FXMLLoader(Main.class.getResource("/application/view/game.fxml"));
-            Main.stage.getScene().setRoot(loader.load());
+        Platform.runLater(() -> {
+            try {
+                FXMLLoader loader = new FXMLLoader(Main.class.getResource("/application/view/game.fxml"));
+                Main.stage.getScene().setRoot(loader.load());
 
-            Game game = loader.getController();
-            game.start(board, isPlayer1);
-            Main.stage.getScene().setOnKeyPressed(game.getAction());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+                Game game = loader.getController();
+                game.start(board, isPlayer1);
+                Main.stage.getScene().setOnKeyPressed(game.getAction());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     public static void endGame() {

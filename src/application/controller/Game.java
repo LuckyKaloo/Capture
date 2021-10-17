@@ -13,17 +13,23 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 
 public class Game {
     @FXML
+    private BorderPane borderPane;
+    @FXML
     private Canvas canvas;
     @FXML
     private Label won;
     @FXML
     private AnchorPane information;
+    @FXML
+    private Pane pane;
 
 
     private GraphicsContext gc;
@@ -31,9 +37,10 @@ public class Game {
     private Logic logic;
 
 
-    private final static int SPACING = 60;
-    private final static int PADDING = 20;
-    private final static int CIRCLE_RADIUS = 3;
+    private final static int PADDING = 40;
+    private final static int VERTEX_RADIUS = 3;
+
+    private double xPadding, yPadding, spacing;
 
     private final static Color BACKGROUND = Color.rgb(2, 8, 16);
     private final static Color LINE = Color.rgb(60, 60, 60);
@@ -50,17 +57,24 @@ public class Game {
         gameName = board.getPlayer1().getName();
         logic = new Logic(board, isPlayer1);
 
-        canvas = new Canvas();
-        canvas.setHeight(800);
-        canvas.setWidth(1200);
+        canvas.widthProperty().bind(pane.widthProperty());
+        canvas.heightProperty().bind(pane.heightProperty());
+
+        double xSpacing = (canvas.getWidth() - 2 * PADDING) / Board.BOARD_WIDTH;
+        double ySpacing = (canvas.getHeight() - 2 * PADDING) / Board.BOARD_HEIGHT;
+
+        if (xSpacing < ySpacing) {
+            spacing = xSpacing;
+            xPadding = PADDING;
+            yPadding = (canvas.getHeight() - spacing * Board.BOARD_HEIGHT) / 2;
+        } else {
+            spacing = ySpacing;
+            xPadding = (canvas.getWidth() - spacing * Board.BOARD_WIDTH) / 2;
+            yPadding = PADDING;
+        }
 
         gc = canvas.getGraphicsContext2D();
         gc.setLineWidth(2);
-
-        gc.setFill(Color.BLACK);
-        gc.fillRect(0, 0, 500, 500);
-
-        System.out.println(gameName + " " + logic + " " + canvas + " " + gc);
 
         FirebaseDatabase.getInstance().getReference().child("games").child(gameName).child("board").addValueEventListener(new ValueEventListener() {
             @Override
@@ -77,6 +91,7 @@ public class Game {
 
             }
         });
+
 
         drawCanvas();
     }
@@ -154,13 +169,13 @@ public class Game {
         gc.beginPath();
         // drawing vertical lines
         for (int x = 0; x <= Board.BOARD_WIDTH; x++) {
-            gc.moveTo(x * SPACING + PADDING, PADDING);
-            gc.lineTo(x * SPACING + PADDING, Board.BOARD_HEIGHT * SPACING + PADDING);
+            gc.moveTo(x * spacing + xPadding, yPadding);
+            gc.lineTo(x * spacing + xPadding, Board.BOARD_HEIGHT * spacing + yPadding);
         }
         // drawing horizontal lines
         for (int y = 0; y <= Board.BOARD_HEIGHT; y++) {
-            gc.moveTo(PADDING, y * SPACING + PADDING);
-            gc.lineTo(Board.BOARD_WIDTH * SPACING + PADDING, y * SPACING + PADDING);
+            gc.moveTo(xPadding, y * spacing + yPadding);
+            gc.lineTo(Board.BOARD_WIDTH * spacing + xPadding, y * spacing + yPadding);
         }
         // drawing positive gradient lines
         for (int i = 0; i < Board.BOARD_WIDTH + Board.BOARD_HEIGHT; i++) {
@@ -168,8 +183,8 @@ public class Game {
             int startY = Math.min(i, Board.BOARD_HEIGHT);
             int endX = Math.min(i, Board.BOARD_WIDTH);
             int endY = Math.max(0, i - Board.BOARD_WIDTH);
-            gc.moveTo(startX * SPACING + PADDING, startY * SPACING + PADDING);
-            gc.lineTo(endX * SPACING + PADDING, endY * SPACING + PADDING);
+            gc.moveTo(startX * spacing + xPadding, startY * spacing + yPadding);
+            gc.lineTo(endX * spacing + xPadding, endY * spacing + yPadding);
         }
         // drawing negative gradient lines
         for (int i = 0; i < Board.BOARD_WIDTH + Board.BOARD_HEIGHT; i++) {
@@ -177,8 +192,8 @@ public class Game {
             int startY = Math.max(0, Board.BOARD_HEIGHT - i);
             int endX = Math.min(i, Board.BOARD_WIDTH);
             int endY = Math.min(Board.BOARD_HEIGHT, Board.BOARD_HEIGHT + Board.BOARD_WIDTH - i);
-            gc.moveTo(startX * SPACING + PADDING, startY * SPACING + PADDING);
-            gc.lineTo(endX * SPACING + PADDING, endY * SPACING + PADDING);
+            gc.moveTo(startX * spacing + xPadding, startY * spacing + yPadding);
+            gc.lineTo(endX * spacing + xPadding, endY * spacing + yPadding);
         }
         gc.stroke();
         gc.closePath();
@@ -190,25 +205,27 @@ public class Game {
         gc.setFill(VERTEX_COLOR);
         for (int col = 0; col <= Board.BOARD_WIDTH; col++) {
             for (int row = 0; row <= Board.BOARD_HEIGHT; row++) {
-                gc.fillOval(col * SPACING - CIRCLE_RADIUS + PADDING, row * SPACING - CIRCLE_RADIUS + PADDING, CIRCLE_RADIUS * 2, CIRCLE_RADIUS * 2);
+                gc.fillOval(col * spacing - VERTEX_RADIUS + xPadding, row * spacing - VERTEX_RADIUS + yPadding,
+                        VERTEX_RADIUS * 2, VERTEX_RADIUS * 2);
             }
         }
 
         gc.setFill(BOT_COLOR);
-        gc.fillOval(logic.getSelectedBot().getX() * SPACING - CIRCLE_RADIUS + PADDING, logic.getSelectedBot().getY() * SPACING - CIRCLE_RADIUS + PADDING, CIRCLE_RADIUS * 2, CIRCLE_RADIUS * 2);
+        gc.fillOval(logic.getSelectedBot().getX() * spacing - VERTEX_RADIUS + xPadding, logic.getSelectedBot().getY() * spacing - VERTEX_RADIUS + yPadding,
+                VERTEX_RADIUS * 2, VERTEX_RADIUS * 2);
 
         gc.setStroke(BOUNDARY_COLOR);
-        gc.strokeOval((logic.getBoard().getCurrentPlayer().getSource().X() - Bot.MAX_DISTANCE) * SPACING + PADDING,
-                (logic.getBoard().getCurrentPlayer().getSource().Y() - Bot.MAX_DISTANCE) * SPACING + PADDING,
-                Bot.MAX_DISTANCE * SPACING * 2, Bot.MAX_DISTANCE * SPACING * 2);
+        gc.strokeOval((logic.getBoard().getCurrentPlayer().getSource().X() - Bot.MAX_DISTANCE) * spacing + xPadding,
+                (logic.getBoard().getCurrentPlayer().getSource().Y() - Bot.MAX_DISTANCE) * spacing + yPadding,
+                Bot.MAX_DISTANCE * spacing * 2, Bot.MAX_DISTANCE * spacing * 2);
     }
 
     private void drawEdges(ArrayList<Vertex[]> edges, Color lineColor) {
         gc.setStroke(lineColor);
         gc.beginPath();
         for (Vertex[] edge: edges) {
-            gc.moveTo(edge[0].X() * SPACING + PADDING, edge[0].Y() * SPACING + PADDING);
-            gc.lineTo(edge[1].X() * SPACING + PADDING, edge[1].Y() * SPACING + PADDING);
+            gc.moveTo(edge[0].X() * spacing + xPadding, edge[0].Y() * spacing + yPadding);
+            gc.lineTo(edge[1].X() * spacing + xPadding, edge[1].Y() * spacing + yPadding);
         }
         gc.stroke();
         gc.closePath();
@@ -224,17 +241,17 @@ public class Game {
                         double[] yCoords;
 
                         if (i == 0) {
-                            xCoords = new double[]{(col + 1) * SPACING + PADDING, (col + 1) * SPACING + PADDING, (col + 0.5) * SPACING + PADDING};
-                            yCoords = new double[]{row * SPACING + PADDING, (row + 1) * SPACING + PADDING, (row + 0.5) * SPACING + PADDING};
+                            xCoords = new double[]{(col + 1) * spacing + xPadding, (col + 1) * spacing + xPadding, (col + 0.5) * spacing + xPadding};
+                            yCoords = new double[]{row * spacing + yPadding, (row + 1) * spacing + yPadding, (row + 0.5) * spacing + yPadding};
                         } else if (i == 1) {
-                            xCoords = new double[]{col * SPACING + PADDING, (col + 1) * SPACING + PADDING, (col + 0.5) * SPACING + PADDING};
-                            yCoords = new double[]{row * SPACING + PADDING, row * SPACING + PADDING, (row + 0.5) * SPACING + PADDING};
+                            xCoords = new double[]{col * spacing + xPadding, (col + 1) * spacing + xPadding, (col + 0.5) * spacing + xPadding};
+                            yCoords = new double[]{row * spacing + yPadding, row * spacing + yPadding, (row + 0.5) * spacing + yPadding};
                         } else if (i == 2) {
-                            xCoords = new double[]{col * SPACING + PADDING, col * SPACING + PADDING, (col + 0.5) * SPACING + PADDING};
-                            yCoords = new double[]{row * SPACING + PADDING, (row + 1) * SPACING + PADDING, (row + 0.5) * SPACING + PADDING};
+                            xCoords = new double[]{col * spacing + xPadding, col * spacing + xPadding, (col + 0.5) * spacing + xPadding};
+                            yCoords = new double[]{row * spacing + yPadding, (row + 1) * spacing + yPadding, (row + 0.5) * spacing + yPadding};
                         } else {
-                            xCoords = new double[]{col * SPACING + PADDING, (col + 1) * SPACING + PADDING, (col + 0.5) * SPACING + PADDING};
-                            yCoords = new double[]{(row + 1) * SPACING + PADDING, (row + 1) * SPACING + PADDING, (row + 0.5) * SPACING + PADDING};
+                            xCoords = new double[]{col * spacing + xPadding, (col + 1) * spacing + xPadding, (col + 0.5) * spacing + xPadding};
+                            yCoords = new double[]{(row + 1) * spacing + yPadding, (row + 1) * spacing + yPadding, (row + 0.5) * spacing + yPadding};
                         }
 
                         gc.fillPolygon(xCoords, yCoords, 3);

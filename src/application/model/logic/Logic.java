@@ -24,18 +24,6 @@ public class Logic {
             this.playerName = board.getPlayer2().getName();
             this.player = board.getPlayer2();
         }
-
-        FirebaseDatabase.getInstance().getReference().child("games").child(board.getPlayer1().getName()).child("board").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                setBoard(Board.loadData((String) dataSnapshot.getValue()));
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
     }
 
     public void setBoard(Board board) {

@@ -4,7 +4,6 @@ import application.model.logic.Board;
 import com.google.firebase.database.*;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXListView;
 import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -83,7 +82,7 @@ public class Login implements Initializable {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String str = (String) dataSnapshot.getValue();
                 if (!str.equals("")) {
-                    ref.removeEventListener(this);
+                    ref.child("board").removeEventListener(this);
                     Board board = Board.loadData(str);
                     Main.startGame(board, true);
                 }
