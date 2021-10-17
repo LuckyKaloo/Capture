@@ -12,19 +12,20 @@ public class Board implements Serializable {
     private final Player player2;
     private Player currentPlayer;
 
+    private Player winningPlayer;
+    private boolean won;
+
     private final ArrayList<ArrayList<int[]>> tiles = new ArrayList<>();
 
-    public final transient static int BOARD_WIDTH = 15;
-    public final transient static int BOARD_HEIGHT = 10;
-
-    public Board() {
-        this("Player 1", "Player 2");
-    }
+    public final transient static int BOARD_WIDTH = 12;
+    public final transient static int BOARD_HEIGHT = 8;
 
     public Board(String name1, String name2) {
         this.player1 = new Player(name1, new Vertex(0, 0));
         this.player2 = new Player(name2, new Vertex(BOARD_WIDTH, BOARD_HEIGHT));
         this.currentPlayer = this.player1;
+        this.winningPlayer = null;
+        this.won = false;
 
         for (int y = 0; y <= BOARD_HEIGHT; y++) {
             ArrayList<int[]> rowTiles = new ArrayList<>();
@@ -41,6 +42,19 @@ public class Board implements Serializable {
 
             tiles.add(rowTiles);
         }
+    }
+
+    public boolean isWon() {
+        return won;
+    }
+
+    public Player getWinningPlayer() {
+        return winningPlayer;
+    }
+
+    public void setWinningPlayer(Player winningPlayer) {
+        this.won = true;
+        this.winningPlayer = winningPlayer;
     }
 
     public ArrayList<ArrayList<int[]>> getTiles() {

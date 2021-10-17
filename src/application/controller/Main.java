@@ -6,6 +6,7 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
@@ -28,27 +29,22 @@ public class Main extends Application {
         FirebaseApp.initializeApp(options);
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/view/login.fxml"));
+        stage.setMaximized(true);
         stage.setScene(new Scene(loader.load()));
         stage.show();
     }
 
-    public static void newLogin() {
+    public static void startGame(Board board, boolean isPlayer1) {
         try {
-            FXMLLoader loader = new FXMLLoader(Main.class.getResource("/application/view/login.fxml"));
-            Stage newStage = new Stage();
-            newStage.setScene(new Scene(loader.load()));
-            newStage.show();
+            FXMLLoader loader = new FXMLLoader(Main.class.getResource("/application/view/game.fxml"));
+            Main.stage.getScene().setRoot(loader.load());
+
+            Game game = loader.getController();
+            game.start(board, isPlayer1);
+            Main.stage.getScene().setOnKeyPressed(game.getAction());
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public static void startGame(Board board, boolean isPlayer1) {
-        game = new Game(board, isPlayer1);
-        game.start();
-
-        Main.stage.getScene().setRoot(game.getPane());
-        Main.stage.getScene().setOnKeyPressed(game.getAction());
     }
 
     public static void endGame() {

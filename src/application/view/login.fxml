@@ -1,16 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import io.github.palexdev.materialfx.controls.MFXButton?>
-<?import io.github.palexdev.materialfx.controls.MFXListView?>
+<?import io.github.palexdev.materialfx.controls.MFXComboBox?>
 <?import io.github.palexdev.materialfx.controls.MFXTextField?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.controller.Login">
-   <children>
-      <MFXButton fx:id="joinBtn" layoutX="264.0" layoutY="345.0" onMouseClicked="#joinGame" text="Join Game" />
-      <MFXTextField fx:id="nameTf" layoutX="233.0" layoutY="43.0" />
-      <MFXButton fx:id="newBtn" layoutX="263.0" layoutY="307.0" onMouseClicked="#newGame" text="New Game" />
-      <MFXListView fx:id="gamesLv" layoutX="200.0" layoutY="91.0" prefHeight="197.0" prefWidth="200.0" />
-      <MFXButton layoutX="513.0" layoutY="361.0" onMouseClicked="#newLogin" text="New Login" />
-   </children>
-</AnchorPane>
+<VBox alignment="CENTER" prefHeight="420.0" prefWidth="436.0" xmlns="http://javafx.com/javafx/16"
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.controller.Login">
+   <GridPane prefHeight="399.0" prefWidth="479.0">
+      <columnConstraints>
+         <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0"/>
+      </columnConstraints>
+      <rowConstraints>
+         <RowConstraints maxHeight="220.0" minHeight="220.0" prefHeight="220.0" vgrow="SOMETIMES"/>
+         <RowConstraints maxHeight="80.0" minHeight="80.0" prefHeight="80.0" vgrow="SOMETIMES"/>
+         <RowConstraints maxHeight="80.0" minHeight="80.0" prefHeight="80.0" vgrow="SOMETIMES"/>
+      </rowConstraints>
+      <HBox alignment="CENTER" maxWidth="307.0" minWidth="200.0" prefHeight="65.0" prefWidth="307.0"
+            spacing="20.0" GridPane.rowIndex="1">
+         <Label text="Name:"/>
+         <MFXTextField fx:id="nameTf"/>
+         <MFXButton fx:id="newBtn" onMouseClicked="#newGame" text="New Game"/>
+      </HBox>
+      <ImageView fitHeight="182.0" fitWidth="202.0" pickOnBounds="true" preserveRatio="true">
+         <Image url="file:/E:/Luc/Computer%20science/Java/Not%20School/Capture/src/application/resources/logo.png"/>
+      </ImageView>
+      <HBox alignment="CENTER" maxWidth="296.0" minWidth="200.0" prefHeight="65.0" prefWidth="268.0"
+            spacing="30.0" GridPane.rowIndex="2">
+         <MFXComboBox fx:id="gamesCb" promptText="Available Games"/>
+         <MFXButton fx:id="joinBtn" onMouseClicked="#joinGame" text="Join Game"/>
+      </HBox>
+   </GridPane>
+</VBox>

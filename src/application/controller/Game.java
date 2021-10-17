@@ -7,29 +7,29 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
-import javafx.scene.Scene;
+import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Label;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
-import java.util.function.Consumer;
 
 public class Game {
-    private final String gameName;
-    private final Logic logic;
-
-    public Game(Board board, boolean isPlayer1) {
-        gameName = board.getPlayer1().getName();
-        logic = new Logic(board, isPlayer1);
-    }
-
-    private Scene scene;
+    @FXML
     private Canvas canvas;
+    @FXML
+    private Label won;
+    @FXML
+    private AnchorPane information;
+
+
     private GraphicsContext gc;
-    private Pane pane;
+    private String gameName;
+    private Logic logic;
+
 
     private final static int SPACING = 60;
     private final static int PADDING = 20;
@@ -46,18 +46,27 @@ public class Game {
     private final static Color BOT_COLOR = Color.rgb(72, 217, 67);
     private final static Color BOUNDARY_COLOR = Color.rgb(229, 210, 68);
 
-    void start() {
+    void start(Board board, boolean isPlayer1) {
+        gameName = board.getPlayer1().getName();
+        logic = new Logic(board, isPlayer1);
+
         canvas = new Canvas();
-        canvas.setWidth(1000);
-        canvas.setHeight(700);
+        canvas.setHeight(800);
+        canvas.setWidth(1200);
+
         gc = canvas.getGraphicsContext2D();
         gc.setLineWidth(2);
+
+        System.out.println(gameName + " " + logic + " " + canvas + " " + gc);
 
         FirebaseDatabase.getInstance().getReference().child("games").child(gameName).child("board").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 logic.setBoard(Board.loadData((String) dataSnapshot.getValue()));
                 Platform.runLater(() -> drawCanvas());
+                if (logic.getBoard().isWon()) {
+                    end();
+                }
             }
 
             @Override
@@ -65,8 +74,6 @@ public class Game {
 
             }
         });
-
-        pane = new Pane(canvas);
 
         drawCanvas();
     }
@@ -96,23 +103,11 @@ public class Game {
     }
 
     void end() {
-
-    }
-
-    public Pane getPane() {
-        return pane;
-    }
-
-    public Scene getScene() {
-        return this.scene;
+        won.setText("game ended!");
     }
 
     public Logic getLogic() {
         return this.logic;
-    }
-
-    public Board getBoard() {
-        return logic.getBoard();
     }
 
     private void drawCanvas() {

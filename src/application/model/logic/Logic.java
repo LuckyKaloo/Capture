@@ -1,5 +1,6 @@
 package application.model.logic;
 
+import application.controller.Main;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -8,14 +9,10 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 
 public class Logic {
-    private boolean isPlayer1;
-    private String playerName;
+    private final boolean isPlayer1;
+    private final String playerName;
     private Board board;
     private Player player;
-
-    public Logic(String name1, String name2) {
-        board = new Board(name1, name2);
-    }
 
     public Logic(Board board, boolean isPlayer1) {
         this.board = board;
@@ -79,6 +76,11 @@ public class Logic {
         board.getPlayer2().setArea(player2Area);
 
         if (player1Area + player2Area == Board.BOARD_HEIGHT * Board.BOARD_WIDTH * 4) {
+            if (player1Area > player2Area) {
+                board.setWinningPlayer(board.getPlayer1());
+            } else if (player1Area < player2Area) {
+                board.setWinningPlayer(board.getPlayer2());
+            }
             endGame();
         }
     }
@@ -212,6 +214,6 @@ public class Logic {
     }
 
     private void endGame() {
-
+        Main.endGame();
     }
 }

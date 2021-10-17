@@ -3,6 +3,7 @@ package application.controller;
 import application.model.logic.Board;
 import com.google.firebase.database.*;
 import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXListView;
 import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
@@ -23,17 +24,16 @@ public class Login implements Initializable {
     @FXML
     private MFXTextField nameTf;
     @FXML
-    private MFXListView<String> gamesLv;
-
+    private MFXComboBox<String> gamesCb;
     @Override
     public void initialize(URL url, ResourceBundle resources) {
         FirebaseDatabase.getInstance().getReference().addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Platform.runLater(() -> gamesLv.getItems().clear());
+                Platform.runLater(() -> gamesCb.getItems().clear());
                 for (DataSnapshot child: dataSnapshot.child("games").getChildren()) {
                     if (child.child("started").getValue().equals("false")) {
-                        Platform.runLater(() -> gamesLv.getItems().add(child.getKey()));
+                        Platform.runLater(() -> gamesCb.getItems().add(child.getKey()));
                     }
                 }
             }
@@ -43,11 +43,6 @@ public class Login implements Initializable {
 
             }
         });
-    }
-
-    @FXML
-    private void newLogin() {
-        Main.newLogin();
     }
 
     @FXML
@@ -127,12 +122,12 @@ public class Login implements Initializable {
     private void handleJoin(DataSnapshot snapshot) {
         String name = nameTf.getText() + "-" + nameId(snapshot);
 
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("games").child(gamesLv.getSelectionModel().getSelectedItem());
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("games").child(gamesCb.getSelectionModel().getSelectedItem());
         ref.child("player2").setValue(name, ((databaseError, databaseReference) -> {}));
         ref.child("started").setValue("true", ((databaseError, databaseReference) -> {}));
 
 
-        DataSnapshot dataSnapshot = snapshot.child("games").child(gamesLv.getSelectionModel().getSelectedItem());
+        DataSnapshot dataSnapshot = snapshot.child("games").child(gamesCb.getSelectionModel().getSelectedItem());
         DataSnapshot player1 = dataSnapshot.child("player1");
         DataSnapshot player2 = dataSnapshot.child("player2");
 
